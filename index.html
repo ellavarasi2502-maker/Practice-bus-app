@@ -238,7 +238,7 @@ const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- settings ----------
-const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 8, walkEnd: 3, buffer: 1, gap: 13 };
+const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 8, walkEnd: 1, buffer: 1, gap: 13 };
 function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
 }
@@ -246,7 +246,9 @@ function saveSettings(s) { try { localStorage.setItem('mybus', JSON.stringify(s)
 let S = loadSettings();
 // v2: the timetable shows the ride to Juying is about 7 min, so replace the old 15-min guess
 if (!S.v && +S.ride === 15) S.ride = DEFAULTS.ride;
-S.v = 2;
+// v3: walk from the stop to the school gate is 1 min, not the old 3-min guess
+if ((S.v || 0) < 3 && +S.walkEnd === 3) S.walkEnd = DEFAULTS.walkEnd;
+S.v = 3;
 if (!S.homeStop) S.homeStop = DEFAULTS.homeStop;
 if (!S.schoolStop) S.schoolStop = DEFAULTS.schoolStop;
 
