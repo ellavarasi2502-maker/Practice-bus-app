@@ -4,55 +4,126 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-title" content="My Bus">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f1ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1512" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23123c2f'/><text x='50' y='68' font-size='50' font-weight='800' font-family='system-ui' text-anchor='middle' fill='%23c6f24e'>99</text></svg>">
 <title>My Bus</title>
 <style>
   :root {
-    --bg: #f4f6f8; --card: #ffffff; --text: #0f172a; --muted: #64748b;
-    --accent: #0f766e; --accent-soft: #ccfbf1; --good: #15803d; --warn: #b45309; --bad: #b91c1c;
-    --line: #e2e8f0;
+    --bg: #f3f1ea; --card: #ffffff; --ink: #14201b; --muted: #6b756f; --line: #e6e2d8;
+    --hero: #123c2f; --hero-ink: #f1f6ee; --lime: #c6f24e;
+    --green: #1a7f55; --green-soft: #dff3e6; --amber: #f2b33d; --red: #c8402f; --red-soft: #fbe4df;
+    --chip: #ece9df; --shadow: 0 1px 2px rgba(20,32,27,.04), 0 8px 24px rgba(20,32,27,.06);
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #0b1220; --card: #131c2e; --text: #e2e8f0; --muted: #94a3b8;
-      --accent: #2dd4bf; --accent-soft: #134e4a; --good: #4ade80; --warn: #fbbf24; --bad: #f87171; --line: #1e293b; }
+    :root { --bg: #0d1512; --card: #16211c; --ink: #e9efe9; --muted: #8e9a93; --line: #24322b;
+      --hero: #1b4d3c; --green: #5fd39a; --green-soft: #173527; --red: #ff8a78; --red-soft: #3a1c17;
+      --chip: #1f2c26; --shadow: none; }
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text);
-    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 520px; margin: 0 auto; padding: 16px 16px 90px; }
-  h1 { font-size: 22px; margin: 4px 0 2px; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-  .big { font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.05; font-variant-numeric: tabular-nums; }
-  .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .5px; }
-  .hero { background: var(--accent); color: #fff; border: 0; }
-  .hero .label { color: rgba(255,255,255,.8); }
-  .hero.late { background: var(--bad); }
-  .hero.soon { background: var(--warn); }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
-  .row:first-of-type { border-top: 0; }
-  .pill { display: inline-block; min-width: 46px; text-align: center; padding: 4px 10px; border-radius: 8px;
-    background: var(--accent-soft); color: var(--text); font-weight: 700; }
-  .mins { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .ok { color: var(--good); } .no { color: var(--bad); } .mid { color: var(--warn); }
-  .small { font-size: 13px; color: var(--muted); }
-  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
-    display: flex; padding-bottom: env(safe-area-inset-bottom); }
-  nav button { flex: 1; border: 0; background: none; color: var(--muted); padding: 12px 4px; font-size: 14px; font-weight: 600; }
-  nav button.on { color: var(--accent); }
-  label.f { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 14px; }
-  input { width: 100%; padding: 10px 12px; font-size: 16px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--bg); color: var(--text); }
-  .btn { display: inline-block; border: 0; border-radius: 10px; padding: 10px 14px; font-size: 15px; font-weight: 600;
-    background: var(--accent); color: #fff; cursor: pointer; }
-  .btn.ghost { background: var(--accent-soft); color: var(--text); }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 480px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 16px calc(110px + env(safe-area-inset-bottom)); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* header */
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
+  h1 { font-size: 30px; line-height: 1.1; letter-spacing: -.8px; font-weight: 800; margin: 4px 0 10px; }
+  .stop { display: inline-flex; align-items: center; gap: 6px; background: var(--chip); border-radius: 999px;
+    padding: 6px 12px 6px 9px; font-size: 13px; font-weight: 600; margin-bottom: 16px; max-width: 100%; }
+  .stop svg { flex: none; }
+  .stop span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* cards */
+  .card { background: var(--card); border-radius: 22px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+
+  /* hero */
+  .hero { background: var(--hero); color: var(--hero-ink); border-radius: 28px; padding: 22px 22px 18px; margin-bottom: 14px;
+    position: relative; overflow: hidden; box-shadow: var(--shadow); transition: background .3s; }
+  .hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,.06); }
+  .hero-top { display: flex; justify-content: space-between; align-items: center; }
+  .hero-label { font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; opacity: .8; }
+  .badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.16); position: relative; z-index: 1; }
+  .hero-big { font-size: 96px; font-weight: 800; letter-spacing: -4px; line-height: 1; margin: 6px 0 2px; color: var(--lime); }
+  .hero-big small { font-size: 26px; letter-spacing: 0; font-weight: 700; margin-left: 8px; }
+  .hero-big.word { font-size: 64px; letter-spacing: -2px; }
+  .hero-msg { font-size: 15px; opacity: .9; }
+  .hero.soon { background: var(--amber); color: #2a1d00; } .hero.soon .hero-big { color: #2a1d00; }
+  .hero.late { background: var(--red); color: #fff; } .hero.late .hero-big { color: #fff; }
+  @media (prefers-color-scheme: dark) { .hero.late { background: #a83424; } }
+  .hero.idle { background: var(--card); color: var(--ink); } .hero.idle .hero-big { color: var(--ink); }
+
+  /* journey strip in hero */
+  .journey { display: flex; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.18); }
+  .hero.soon .journey { border-color: rgba(0,0,0,.15); }
+  .step { flex: 1; position: relative; }
+  .step .t { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+  .step .l { font-size: 12px; opacity: .8; font-weight: 600; }
+  .step + .step { padding-left: 14px; }
+  .step + .step::before { content: "›"; position: absolute; left: -4px; top: 2px; font-size: 20px; opacity: .5; }
+
+  /* bus rows */
+  .bus { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid var(--line); }
+  .bus:first-of-type { border-top: 0; }
+  .bus.dim { opacity: .45; }
+  .plate { flex: none; min-width: 50px; text-align: center; padding: 7px 8px; border-radius: 11px; font-weight: 800; font-size: 17px;
+    background: var(--chip); letter-spacing: -.3px; }
+  .plate.mine { background: var(--hero); color: var(--lime); }
+  .eta { flex: 1; min-width: 0; }
+  .eta .m { font-size: 24px; font-weight: 800; letter-spacing: -.6px; line-height: 1.1; }
+  .eta .m small { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-left: 3px; }
+  .eta .s { font-size: 13px; color: var(--muted); }
+  .tag { flex: none; font-size: 13px; font-weight: 700; padding: 6px 11px; border-radius: 999px; white-space: nowrap; background: var(--chip); color: var(--muted); }
+  .tag.go { background: var(--green-soft); color: var(--green); }
+  .tag.now { background: var(--amber); color: #2a1d00; }
+  .tag.bad { background: var(--red-soft); color: var(--red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .chip { font-size: 13px; background: var(--chip); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
+  .chip b { color: var(--ink); }
+  .foot { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+  .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; margin-right: 6px; }
+  @keyframes pulse { 50% { opacity: .3; } }
+
+  /* plan timeline */
+  .tl { position: relative; margin-top: 10px; }
+  .tl::before { content: ""; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
+  .tl-item { display: flex; align-items: center; gap: 14px; padding: 9px 0; position: relative; }
+  .dot { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--card); border: 3px solid var(--muted); z-index: 1; }
+  .dot.g { border-color: var(--green); background: var(--green); } .dot.r { border-color: var(--red); }
+  .tl-time { font-size: 22px; font-weight: 800; letter-spacing: -.5px; width: 66px; flex: none; }
+  .tl-text { font-size: 15px; font-weight: 600; line-height: 1.25; }
+  .tl-text span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+  .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+
+  /* settings */
+  label.f { display: block; margin: 14px 0 5px; font-weight: 600; font-size: 14px; }
+  input { width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 13px; border: 1.5px solid var(--line);
+    background: var(--bg); color: var(--ink); font-family: inherit; }
+  input:focus { outline: none; border-color: var(--green); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .btn { border: 0; border-radius: 13px; padding: 12px 16px; font-size: 15px; font-weight: 700; font-family: inherit;
+    background: var(--hero); color: var(--lime); cursor: pointer; }
+  .btn.ghost { background: var(--chip); color: var(--ink); font-weight: 600; font-size: 14px; padding: 10px 13px; }
+  .btn.wide { width: 100%; padding: 15px; font-size: 16px; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-  .stopname { font-weight: 700; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 5px; min-height: 18px; }
+  .pick { background: var(--bg); border: 1.5px solid var(--line); border-radius: 13px; padding: 11px 13px; margin-top: 8px; font-size: 15px;
+    width: 100%; text-align: left; color: var(--ink); font-family: inherit; }
+  .err { color: var(--red); font-size: 14px; margin: 8px 0 0; }
   .hidden { display: none; }
-  .err { color: var(--bad); font-size: 14px; }
-  ul.plain { margin: 6px 0 0; padding-left: 18px; }
-  .pick { width: 100%; text-align: left; background: var(--bg); color: var(--text); border: 1px solid var(--line);
-    border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 15px; cursor: pointer; }
+
+  /* tab bar */
+  nav { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom));
+    width: min(448px, calc(100% - 32px)); background: var(--card); border-radius: 22px; display: flex; padding: 6px;
+    box-shadow: 0 2px 6px rgba(20,32,27,.08), 0 14px 34px rgba(20,32,27,.16); border: 1px solid var(--line); }
+  nav button { flex: 1; border: 0; background: none; color: var(--muted); padding: 9px 4px 8px; font-size: 12px; font-weight: 700;
+    border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; cursor: pointer; }
+  nav button.on { background: var(--hero); color: var(--lime); }
 </style>
 </head>
 <body>
@@ -60,91 +131,87 @@
 
   <!-- ============ MORNING ============ -->
   <section id="tab-morning">
-    <h1>Morning: go to school</h1>
-    <p class="sub" id="m-sub">Loading…</p>
+    <div class="eyebrow">Morning</div>
+    <h1>To school</h1>
+    <div class="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="m-sub">Loading…</span></div>
 
-    <div class="card hero" id="m-hero">
-      <div class="label" id="m-hero-label">Leave home in</div>
-      <div class="big" id="m-hero-big">--</div>
-      <div id="m-hero-detail" style="margin-top:6px"></div>
+    <div class="hero" id="m-hero">
+      <div class="hero-top"><div class="hero-label" id="m-hero-label">Leave home in</div><div class="badge hidden" id="m-badge"></div></div>
+      <div class="hero-big num" id="m-hero-big">–</div>
+      <div class="hero-msg" id="m-hero-msg"></div>
+      <div class="journey hidden" id="m-journey"></div>
     </div>
 
     <div class="card">
-      <div class="label">Next buses at your stop</div>
-      <div id="m-list" style="margin-top:6px"></div>
-      <p class="small" id="m-updated" style="margin:8px 0 0"></p>
+      <div class="card-title" id="m-list-title">Next buses</div>
+      <div id="m-list"></div>
+      <p class="foot" id="m-updated"></p>
     </div>
 
     <div class="card">
-      <div class="label">The plan (no live data needed)</div>
-      <div id="m-plan" style="margin-top:6px"></div>
+      <div class="card-title">Tomorrow's plan</div>
+      <div id="m-plan"></div>
     </div>
   </section>
 
   <!-- ============ AFTER SCHOOL ============ -->
   <section id="tab-school" class="hidden">
-    <h1>After school: go home</h1>
-    <p class="sub" id="s-sub">Loading…</p>
+    <div class="eyebrow">After school</div>
+    <h1>Going home</h1>
+    <div class="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="s-sub">Loading…</span></div>
     <div class="card">
-      <div class="label">All buses at the school stop</div>
-      <div id="s-list" style="margin-top:6px"></div>
-      <p class="small" id="s-updated" style="margin:8px 0 0"></p>
+      <div class="card-title">Buses at this stop</div>
+      <div id="s-list"></div>
+      <p class="foot" id="s-updated"></p>
     </div>
   </section>
 
   <!-- ============ SETTINGS ============ -->
   <section id="tab-settings" class="hidden">
+    <div class="eyebrow">Saved on this phone only</div>
     <h1>Settings</h1>
-    <p class="sub">Saved on this phone only.</p>
 
     <div class="card">
-      <div class="label">Bus stops</div>
-      <label class="f" for="homeStop">Morning: where I board (near home)</label>
+      <div class="card-title">Bus stops</div>
+      <label class="f" for="homeStop">Morning: where I board</label>
       <input id="homeStop" inputmode="numeric" maxlength="5" placeholder="27351">
-      <div class="small" id="homeStopName"></div>
+      <div class="hint" id="homeStopName"></div>
 
-      <label class="f" for="schoolStop">After school: where I board (e.g. Xingnan Pr Sch)</label>
-      <input id="schoolStop" inputmode="numeric" maxlength="5" placeholder="e.g. 28xxx">
-      <div class="small" id="schoolStopName"></div>
+      <label class="f" for="schoolStop">After school: where I board</label>
+      <input id="schoolStop" inputmode="numeric" maxlength="5" placeholder="27539">
+      <div class="hint" id="schoolStopName"></div>
 
-      <label class="f" for="q">Don't know the code? Search by name</label>
+      <label class="f" for="q">Find a stop by name</label>
       <input id="q" placeholder="e.g. Xingnan">
       <div id="results"></div>
-
       <div class="btns">
-        <button class="btn ghost" id="nearHome">Find stops near me (for home)</button>
-        <button class="btn ghost" id="nearSchool">Find stops near me (for school)</button>
+        <button class="btn ghost" id="nearHome">Near me → morning</button>
+        <button class="btn ghost" id="nearSchool">Near me → after school</button>
       </div>
       <div id="nearby"></div>
-      <p class="small">Tip: the 5-digit code is printed on the bus stop sign.</p>
     </div>
 
     <div class="card">
-      <div class="label">My morning</div>
-      <label class="f" for="bus">My bus</label>
-      <input id="bus" placeholder="99">
-      <label class="f" for="arriveBy">Must reach school by</label>
-      <input id="arriveBy" type="time" value="06:30">
-      <label class="f" for="walk">Walk from home to stop (min)</label>
-      <input id="walk" type="number" min="0" max="60" value="10">
-      <label class="f" for="ride">Bus ride to school (min)</label>
-      <input id="ride" type="number" min="1" max="90" value="15">
-      <label class="f" for="walkEnd">Walk from school stop to school gate (min)</label>
-      <input id="walkEnd" type="number" min="0" max="30" value="3">
-      <label class="f" for="buffer">Extra buffer at the stop (min)</label>
-      <input id="buffer" type="number" min="0" max="15" value="1">
-      <label class="f" for="gap">Longest gap between buses (min)</label>
-      <input id="gap" type="number" min="1" max="40" value="13">
-      <div class="btns"><button class="btn" id="save">Save</button></div>
-      <p class="small" id="saved"></p>
+      <div class="card-title">My morning</div>
+      <div class="two">
+        <div><label class="f" for="bus">My bus</label><input id="bus" placeholder="99"></div>
+        <div><label class="f" for="arriveBy">Reach school by</label><input id="arriveBy" type="time" value="06:30"></div>
+        <div><label class="f" for="walk">Walk to stop (min)</label><input id="walk" type="number" inputmode="numeric" min="0" max="60"></div>
+        <div><label class="f" for="ride">Bus ride (min)</label><input id="ride" type="number" inputmode="numeric" min="1" max="90"></div>
+        <div><label class="f" for="walkEnd">Stop to school (min)</label><input id="walkEnd" type="number" inputmode="numeric" min="0" max="30"></div>
+        <div><label class="f" for="buffer">Spare time (min)</label><input id="buffer" type="number" inputmode="numeric" min="0" max="15"></div>
+        <div><label class="f" for="gap">Longest bus gap (min)</label><input id="gap" type="number" inputmode="numeric" min="1" max="40"></div>
+      </div>
     </div>
+    <button class="btn wide" id="save">Save</button>
+    <div class="hint" id="saved" style="text-align:center"></div>
   </section>
 </main>
 
 <nav>
-  <button data-tab="morning" class="on">🌅 Morning</button>
-  <button data-tab="school">🏫 After school</button>
-  <button data-tab="settings">⚙️ Settings</button>
+  <button data-tab="morning" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>Morning</button>
+  <button data-tab="school"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8.5 15h.01M15.5 15h.01M8 18v2.5M16 18v2.5"/></svg>After school</button>
+  <button data-tab="settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Settings</button>
 </nav>
 
 <script>
@@ -173,14 +240,17 @@ function todayAt(hm, base = new Date()) {
   const [h, m] = hm.split(':').map(Number);
   const d = new Date(base); d.setHours(h, m, 0, 0); return d;
 }
-// Next occurrence of the school deadline (today if not passed yet, else tomorrow)
+// Next occurrence of the school deadline (today until 30 min after it, else tomorrow)
 function nextDeadline(now = new Date()) {
   let d = todayAt(S.arriveBy, now);
   if (now > addMin(d, 30)) d = addMin(d, 24 * 60);
   return d;
 }
+// Only judge "on time / late" during the morning rush (within 3 h before the deadline)
+const inMorningWindow = (now, deadline) => deadline - now <= 3 * 3600000;
 const minsUntil = (d, now = new Date()) => Math.round((d - now) / 60000);
-function fmtMins(m) { return m <= 0 ? 'Arr' : `${m} min`; }
+const etaHtml = m => m <= 0 ? 'Now' : `${m}<small>min</small>`;
+const etaText = m => m <= 0 ? 'now' : `${m} min`;
 
 // ---------- stop names ----------
 let STOPS = null; // { code: [lng, lat, name, road] }
@@ -199,7 +269,7 @@ async function loadStops() {
 function stopLabel(code) {
   if (!code) return '';
   const s = STOPS && STOPS[code];
-  return s ? `${s[2]} · ${s[3]} (${code})` : `Stop ${code}`;
+  return s ? `${s[2]} · ${s[3]} · ${code}` : `Stop ${code}`;
 }
 
 // ---------- live arrivals ----------
@@ -222,89 +292,113 @@ function demoArrivals(code) {
     { no: '193', times: [t(9), t(21), t(33)] }, { no: '252', times: [t(0), t(7), t(18)] }];
   return [{ no: S.bus, times: [t(6), t(16), t(29)] }, { no: '182', times: [t(3), t(12), t(20)] }];
 }
+const footHtml = now => `<span class="live"></span>Live · updated ${hhmm(now)}${DEMO ? ' · demo data' : ''}`;
 
 // ---------- MORNING ----------
 function renderPlan() {
   const deadline = nextDeadline();
   const latestBus = addMin(deadline, -(+S.ride + +S.walkEnd));
-  const safeLeave = addMin(latestBus, -(+S.gap + +S.walk + +S.buffer));
-  const luckyLeave = addMin(latestBus, -(+S.walk + +S.buffer));
-  $('m-plan').innerHTML = `
-    <div class="row"><span>Reach school by</span><b>${hhmm(deadline)}</b></div>
-    <div class="row"><span>Latest bus ${S.bus} you can catch</span><b>${hhmm(latestBus)}</b></div>
-    <div class="row"><span>Safe time to leave home<br><span class="small">even if you just missed a bus (${S.gap} min gap)</span></span><b class="ok">${hhmm(safeLeave)}</b></div>
-    <div class="row"><span>Absolute latest<br><span class="small">only if a bus comes right when you arrive</span></span><b class="no">${hhmm(luckyLeave)}</b></div>
-    <p class="small" style="margin:8px 0 0">Walk ${S.walk} min → wait → ride ${S.ride} min → walk ${S.walkEnd} min. Adjust in Settings.</p>`;
+  const lead = +S.walk + +S.buffer;
+  const safeLeave = addMin(latestBus, -(+S.gap + lead));
+  const lastLeave = addMin(latestBus, -lead);
+  $('m-plan').innerHTML = `<div class="tl">
+    <div class="tl-item"><div class="dot g"></div><div class="tl-time num">${hhmm(safeLeave)}</div>
+      <div class="tl-text">Leave home<span>Safe even if you just miss a bus</span></div></div>
+    <div class="tl-item"><div class="dot r"></div><div class="tl-time num">${hhmm(lastLeave)}</div>
+      <div class="tl-text">Very latest to leave<span>Only works if a bus comes at once</span></div></div>
+    <div class="tl-item"><div class="dot"></div><div class="tl-time num">${hhmm(latestBus)}</div>
+      <div class="tl-text">Last bus ${S.bus} that makes it</div></div>
+    <div class="tl-item"><div class="dot"></div><div class="tl-time num">${hhmm(deadline)}</div>
+      <div class="tl-text">At school</div></div>
+  </div>
+  <p class="note">${S.walk} min walk · up to ${S.gap} min wait · ${S.ride} min ride · ${S.walkEnd} min walk</p>`;
+}
+
+function setHero({ label, big, msg = '', cls = '', badge = '', journey = '', word = false }) {
+  $('m-hero').className = 'hero ' + cls;
+  $('m-hero-label').textContent = label;
+  $('m-hero-big').innerHTML = big; $('m-hero-big').classList.toggle('word', word);
+  $('m-hero-msg').innerHTML = msg; $('m-hero-msg').classList.toggle('hidden', !msg);
+  $('m-badge').textContent = badge; $('m-badge').classList.toggle('hidden', !badge);
+  $('m-journey').innerHTML = journey; $('m-journey').classList.toggle('hidden', !journey);
 }
 
 async function renderMorning() {
   renderPlan();
   const now = new Date();
   const deadline = nextDeadline(now);
+  const judge = inMorningWindow(now, deadline);
   const latestBus = addMin(deadline, -(+S.ride + +S.walkEnd));
-  $('m-sub').textContent = S.homeStop ? `From ${stopLabel(S.homeStop)}` : 'Set your home bus stop in Settings ⚙️';
-  if (!S.homeStop) { setHero('Set up first', '⚙️', 'Add your home bus stop code in Settings.', ''); $('m-list').innerHTML = ''; return; }
+  const lead = +S.walk + +S.buffer; // minutes needed before the bus arrives
+  $('m-sub').textContent = stopLabel(S.homeStop);
+  $('m-list-title').textContent = `Next bus ${S.bus}`;
 
   let services;
   try { services = await getArrivals(S.homeStop); }
-  catch (e) { $('m-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; return; }
+  catch (e) {
+    setHero({ label: 'No connection', big: '–', cls: 'idle', msg: `Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.` });
+    $('m-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; $('m-updated').innerHTML = ''; return;
+  }
 
   const mine = services.find(s => s.no === S.bus);
-  const lead = +S.walk + +S.buffer; // minutes needed before bus arrives
   if (!mine) {
-    setHero('No live times', '—', `No ${S.bus} times right now. Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.`, '');
+    setHero({ label: `No bus ${S.bus} right now`, big: '–', cls: 'idle',
+      msg: `No live times at the moment. Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.` });
+    $('m-list').innerHTML = '<p class="note">Nothing coming yet.</p>';
   } else {
-    // Each upcoming bus: when to leave home, and will it get me there on time?
-    const options = mine.times.map(t => ({ bus: t, leave: addMin(t, -lead), reach: addMin(t, +S.ride + +S.walkEnd) }));
-    const catchable = options.filter(o => o.leave >= addMin(now, -0.5));
-    const best = catchable[0];
+    const options = mine.times.map(t => {
+      const leave = addMin(t, -lead), reach = addMin(t, +S.ride + +S.walkEnd);
+      return { bus: t, leave, reach, canMake: leave >= addMin(now, -0.5), onTime: reach <= deadline };
+    });
+    const best = options.find(o => o.canMake);
     if (!best) {
-      setHero('Too late for these', '🏃', `The next ${S.bus} buses come too soon to walk there. Check again in a minute.`, 'late');
+      setHero({ label: 'Hang on', big: 'Wait', word: true, cls: 'idle', msg: `The next ${S.bus}s come too soon to walk there. New times will show shortly.` });
     } else {
       const m = minsUntil(best.leave, now);
-      const onTime = best.reach <= deadline;
-      const big = m <= 0 ? 'NOW' : `${m} min`;
-      const cls = !onTime ? 'late' : m <= 3 ? 'soon' : '';
-      setHero(m <= 0 ? 'Leave home' : 'Leave home in', big,
-        `Leave at <b>${hhmm(best.leave)}</b> → catch ${S.bus} at <b>${hhmm(best.bus)}</b> → reach ~<b>${hhmm(best.reach)}</b> ${onTime ? '✅ on time' : '⚠️ late'}`, cls);
+      const late = judge && !best.onTime;
+      setHero({
+        label: m <= 0 ? 'Leave home' : 'Leave home in',
+        big: m <= 0 ? 'Now' : `${m}<small>min</small>`, word: m <= 0,
+        cls: late ? 'late' : m <= 3 ? 'soon' : '',
+        badge: !judge ? '' : late ? 'Running late' : 'On time',
+        journey: `<div class="step"><div class="t num">${hhmm(best.leave)}</div><div class="l">Leave home</div></div>
+          <div class="step"><div class="t num">${hhmm(best.bus)}</div><div class="l">Bus ${S.bus}</div></div>
+          <div class="step"><div class="t num">${hhmm(best.reach)}</div><div class="l">At school</div></div>`
+      });
     }
     $('m-list').innerHTML = options.map(o => {
-      const m = minsUntil(o.bus, now), canMake = o.leave >= addMin(now, -0.5), onTime = o.reach <= deadline;
-      return `<div class="row">
-        <span><span class="pill">${S.bus}</span> <span class="mins">${fmtMins(m)}</span> <span class="small">(${hhmm(o.bus)})</span></span>
-        <span class="small" style="text-align:right">${canMake ? `leave ${hhmm(o.leave)}` : '<span class="no">can\'t make it</span>'}${canMake ? (onTime ? '<br><span class="ok">on time</span>' : '<br><span class="no">late</span>') : ''}</span></div>`;
+      const tag = !o.canMake ? '<span class="tag">Too soon</span>'
+        : judge && !o.onTime ? `<span class="tag bad">Late · leave ${hhmm(o.leave)}</span>`
+        : `<span class="tag go">Leave ${hhmm(o.leave)}</span>`;
+      return `<div class="bus ${o.canMake ? '' : 'dim'}">
+        <div class="eta"><div class="m num">${etaHtml(minsUntil(o.bus, now))}</div><div class="s num">arrives ${hhmm(o.bus)}</div></div>${tag}</div>`;
     }).join('');
   }
   const others = services.filter(s => s.no !== S.bus);
-  if (others.length) $('m-list').innerHTML += `<p class="small" style="margin:10px 0 0">Other buses here: ${others.map(s => `${s.no} (${fmtMins(minsUntil(s.times[0], now))})`).join(', ')}</p>`;
-  $('m-updated').textContent = `Updated ${hhmm(now)}${DEMO ? ' · DEMO data' : ''} · refreshes every 30 s`;
-}
-function setHero(label, big, detail, cls) {
-  $('m-hero-label').textContent = label; $('m-hero-big').textContent = big;
-  $('m-hero-detail').innerHTML = detail; $('m-hero').className = 'card hero ' + cls;
+  if (others.length) $('m-list').innerHTML += `<div class="chips">${others.map(s =>
+    `<span class="chip num"><b>${s.no}</b> ${etaText(minsUntil(s.times[0], now))}</span>`).join('')}</div>`;
+  $('m-updated').innerHTML = footHtml(now);
 }
 
 // ---------- AFTER SCHOOL ----------
 async function renderSchool() {
-  $('s-sub').textContent = S.schoolStop ? `From ${stopLabel(S.schoolStop)}` : 'Pick your after-school stop in Settings ⚙️ (search "Xingnan")';
-  if (!S.schoolStop) { $('s-list').innerHTML = ''; return; }
+  $('s-sub').textContent = stopLabel(S.schoolStop);
   const now = new Date();
   let services;
   try { services = await getArrivals(S.schoolStop); }
-  catch (e) { $('s-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; return; }
-  if (!services.length) { $('s-list').innerHTML = '<p class="small">No buses right now.</p>'; return; }
+  catch (e) { $('s-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; $('s-updated').innerHTML = ''; return; }
+  if (!services.length) { $('s-list').innerHTML = '<p class="note">No buses right now.</p>'; $('s-updated').innerHTML = footHtml(now); return; }
   services.sort((a, b) => (b.no === S.bus) - (a.no === S.bus) || a.times[0] - b.times[0]);
   $('s-list').innerHTML = services.map(s => {
     const [n, ...rest] = s.times.map(t => minsUntil(t, now));
-    const walkOut = n - (+S.walkEnd);
-    const hint = n <= 0 ? '<span class="no">arriving</span>'
-      : walkOut <= 0 ? '<span class="mid">go now</span>' : `<span class="ok">walk out in ${walkOut} min</span>`;
-    return `<div class="row">
-      <span><span class="pill" ${s.no === S.bus ? 'style="background:var(--accent);color:#fff"' : ''}>${s.no}</span>
-      <span class="mins">${fmtMins(n)}</span> <span class="small">then ${rest.map(fmtMins).join(', ') || '—'}</span></span>
-      <span class="small" style="text-align:right;white-space:nowrap">${hint}</span></div>`;
+    const out = n - (+S.walkEnd);
+    const tag = n <= 0 ? '<span class="tag">Arriving</span>'
+      : out <= 0 ? '<span class="tag now">Go now</span>' : `<span class="tag go">Go in ${out} min</span>`;
+    return `<div class="bus"><div class="plate ${s.no === S.bus ? 'mine' : ''}">${s.no}</div>
+      <div class="eta"><div class="m num">${etaHtml(n)}</div>
+      <div class="s num">${rest.length ? 'then ' + rest.map(etaText).join(', ') : 'last one shown'}</div></div>${tag}</div>`;
   }).join('');
-  $('s-updated').textContent = `Updated ${hhmm(now)}${DEMO ? ' · DEMO data' : ''} · refreshes every 30 s · "walk out" uses your ${S.walkEnd}-min gate walk`;
+  $('s-updated').innerHTML = footHtml(now) + ` · "Go in" allows ${S.walkEnd} min to reach the stop`;
 }
 
 // ---------- SETTINGS ----------
@@ -318,50 +412,48 @@ function fillSettings() {
   $(k + 'Name').textContent = $(k).value.length === 5 ? stopLabel($(k).value) : '';
 }));
 $('save').onclick = () => {
-  FIELDS.forEach(k => S[k] = $(k).value.trim());
-  saveSettings(S); $('saved').textContent = '✅ Saved'; setTimeout(() => $('saved').textContent = '', 2000);
-  fillSettings();
+  FIELDS.forEach(k => S[k] = $(k).value.trim() || DEFAULTS[k]);
+  saveSettings(S); fillSettings();
+  $('saved').textContent = 'Saved ✓'; setTimeout(() => $('saved').textContent = '', 2000);
 };
 function distM(lat1, lng1, lat2, lng2) {
   const R = 6371000, r = Math.PI / 180;
   const x = (lng2 - lng1) * r * Math.cos((lat1 + lat2) / 2 * r), y = (lat2 - lat1) * r;
   return Math.round(Math.sqrt(x * x + y * y) * R);
 }
-function findNear(target) {
-  const box = $('nearby');
-  if (!navigator.geolocation) { box.innerHTML = '<p class="err">Location not available on this device.</p>'; return; }
-  box.innerHTML = '<p class="small">Finding your location…</p>';
-  navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude: la, longitude: lo } = pos.coords;
-    await loadStops();
-    const list = Object.entries(STOPS).map(([code, s]) => ({ code, name: s[2], road: s[3], d: distM(la, lo, s[1], s[0]) }))
-      .sort((a, b) => a.d - b.d).slice(0, 6);
-    if (!list.length) { box.innerHTML = '<p class="err">Could not load the bus stop list.</p>'; return; }
-    box.innerHTML = `<p class="small">Tap the right one:</p>` + list.map(s =>
-      `<button class="pick" data-code="${s.code}"><b>${s.name}</b> · ${s.road}<br><span class="small">${s.code} · ${s.d} m away</span></button>`).join('');
-    box.querySelectorAll('.pick').forEach(b => b.onclick = () => {
-      $(target).value = b.dataset.code; $(target + 'Name').textContent = stopLabel(b.dataset.code);
-      box.innerHTML = '<p class="small">Picked! Press Save.</p>';
-    });
-  }, () => box.innerHTML = '<p class="err">Location permission denied. Type the code from the bus stop sign instead.</p>',
-  { enableHighAccuracy: true, timeout: 10000 });
+function pickStop(target, code, box) {
+  $(target).value = code; $(target + 'Name').textContent = stopLabel(code);
+  box.innerHTML = '<p class="note">Picked. Press Save.</p>';
 }
-// Search stops by name; each result can be set as morning or after-school stop
+// Search stops by name; each result can be set as the morning or after-school stop
 $('q').addEventListener('input', async () => {
   const q = $('q').value.trim().toLowerCase(), box = $('results');
   if (q.length < 3) { box.innerHTML = ''; return; }
   await loadStops();
   const list = Object.entries(STOPS).filter(([c, s]) => (s[2] + ' ' + s[3] + ' ' + c).toLowerCase().includes(q)).slice(0, 8);
   box.innerHTML = list.length ? list.map(([c, s]) =>
-    `<div class="pick"><b>${s[2]}</b> · ${s[3]} <span class="small">(${c})</span>
+    `<div class="pick"><b>${s[2]}</b> · ${s[3]} · ${c}
      <div class="btns"><button class="btn ghost" data-t="homeStop" data-code="${c}">Use for morning</button>
      <button class="btn ghost" data-t="schoolStop" data-code="${c}">Use for after school</button></div></div>`).join('')
-    : `<p class="small">${Object.keys(STOPS).length ? 'No stop found.' : 'Could not load the stop list. Check your internet.'}</p>`;
-  box.querySelectorAll('button').forEach(b => b.onclick = () => {
-    $(b.dataset.t).value = b.dataset.code; $(b.dataset.t + 'Name').textContent = stopLabel(b.dataset.code);
-    box.innerHTML = '<p class="small">Picked! Press Save.</p>'; $('q').value = '';
-  });
+    : `<p class="note">${Object.keys(STOPS).length ? 'No stop found.' : 'Could not load the stop list. Check your internet.'}</p>`;
+  box.querySelectorAll('button').forEach(b => b.onclick = () => { pickStop(b.dataset.t, b.dataset.code, box); $('q').value = ''; });
 });
+function findNear(target) {
+  const box = $('nearby');
+  if (!navigator.geolocation) { box.innerHTML = '<p class="err">Location is not available on this device.</p>'; return; }
+  box.innerHTML = '<p class="note">Finding your location…</p>';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    await loadStops();
+    const list = Object.entries(STOPS).map(([code, s]) => ({ code, name: s[2], road: s[3], d: distM(la, lo, s[1], s[0]) }))
+      .sort((a, b) => a.d - b.d).slice(0, 6);
+    if (!list.length) { box.innerHTML = '<p class="err">Could not load the bus stop list.</p>'; return; }
+    box.innerHTML = '<p class="note">Tap the right one:</p>' + list.map(s =>
+      `<button class="pick" data-code="${s.code}"><b>${s.name}</b> · ${s.road}<br><span class="hint">${s.code} · ${s.d} m away</span></button>`).join('');
+    box.querySelectorAll('.pick').forEach(b => b.onclick = () => pickStop(target, b.dataset.code, box));
+  }, () => box.innerHTML = '<p class="err">Location permission denied. Search by name instead.</p>',
+  { enableHighAccuracy: true, timeout: 10000 });
+}
 $('nearHome').onclick = () => findNear('homeStop');
 $('nearSchool').onclick = () => findNear('schoolStop');
 
@@ -371,6 +463,7 @@ function show(t) {
   tab = t;
   ['morning', 'school', 'settings'].forEach(x => $('tab-' + x).classList.toggle('hidden', x !== t));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  window.scrollTo(0, 0);
   refresh();
 }
 function refresh() {
@@ -382,13 +475,10 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.da
 setInterval(() => { if (tab !== 'settings') refresh(); }, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && tab !== 'settings') refresh(); });
 
-// Start: afternoon → open "After school" automatically
-(async () => {
-  if (DEMO && !S.homeStop) { S.homeStop = '11111'; S.schoolStop = '22222'; }
-  loadStops().then(() => { if (tab !== 'settings') refresh(); });
-  const h = new Date().getHours();
-  show(!S.homeStop ? 'settings' : h >= 11 && h < 20 ? 'school' : 'morning');
-})();
+// Start: 11am–8pm opens "After school", otherwise "Morning"
+loadStops().then(() => refresh());
+const h0 = new Date().getHours();
+show(h0 >= 11 && h0 < 20 ? 'school' : 'morning');
 </script>
 </body>
 </html>
