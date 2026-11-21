@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f766e">
+<title>My Bus</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+    --accent: #0f766e; --accent-soft: #ccfbf1; --good: #15803d; --warn: #b45309; --bad: #b91c1c;
+    --line: #e2e8f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b1220; --card: #131c2e; --text: #e2e8f0; --muted: #94a3b8;
+      --accent: #2dd4bf; --accent-soft: #134e4a; --good: #4ade80; --warn: #fbbf24; --bad: #f87171; --line: #1e293b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 16px 16px 90px; }
+  h1 { font-size: 22px; margin: 4px 0 2px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .big { font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .5px; }
+  .hero { background: var(--accent); color: #fff; border: 0; }
+  .hero .label { color: rgba(255,255,255,.8); }
+  .hero.late { background: var(--bad); }
+  .hero.soon { background: var(--warn); }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  .pill { display: inline-block; min-width: 46px; text-align: center; padding: 4px 10px; border-radius: 8px;
+    background: var(--accent-soft); color: var(--text); font-weight: 700; }
+  .mins { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .ok { color: var(--good); } .no { color: var(--bad); } .mid { color: var(--warn); }
+  .small { font-size: 13px; color: var(--muted); }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line);
+    display: flex; padding-bottom: env(safe-area-inset-bottom); }
+  nav button { flex: 1; border: 0; background: none; color: var(--muted); padding: 12px 4px; font-size: 14px; font-weight: 600; }
+  nav button.on { color: var(--accent); }
+  label.f { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 14px; }
+  input { width: 100%; padding: 10px 12px; font-size: 16px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); }
+  .btn { display: inline-block; border: 0; border-radius: 10px; padding: 10px 14px; font-size: 15px; font-weight: 600;
+    background: var(--accent); color: #fff; cursor: pointer; }
+  .btn.ghost { background: var(--accent-soft); color: var(--text); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .stopname { font-weight: 700; }
+  .hidden { display: none; }
+  .err { color: var(--bad); font-size: 14px; }
+  ul.plain { margin: 6px 0 0; padding-left: 18px; }
+  .pick { width: 100%; text-align: left; background: var(--bg); color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 12px; margin-top: 6px; font-size: 15px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+
+  <!-- ============ MORNING ============ -->
+  <section id="tab-morning">
+    <h1>Morning: go to school</h1>
+    <p class="sub" id="m-sub">Loading…</p>
+
+    <div class="card hero" id="m-hero">
+      <div class="label" id="m-hero-label">Leave home in</div>
+      <div class="big" id="m-hero-big">--</div>
+      <div id="m-hero-detail" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <div class="label">Next buses at your stop</div>
+      <div id="m-list" style="margin-top:6px"></div>
+      <p class="small" id="m-updated" style="margin:8px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <div class="label">The plan (no live data needed)</div>
+      <div id="m-plan" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- ============ AFTER SCHOOL ============ -->
+  <section id="tab-school" class="hidden">
+    <h1>After school: go home</h1>
+    <p class="sub" id="s-sub">Loading…</p>
+    <div class="card">
+      <div class="label">All buses at the school stop</div>
+      <div id="s-list" style="margin-top:6px"></div>
+      <p class="small" id="s-updated" style="margin:8px 0 0"></p>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="tab-settings" class="hidden">
+    <h1>Settings</h1>
+    <p class="sub">Saved on this phone only.</p>
+
+    <div class="card">
+      <div class="label">Bus stops</div>
+      <label class="f" for="homeStop">Stop near home (5-digit code)</label>
+      <input id="homeStop" inputmode="numeric" maxlength="5" placeholder="e.g. 28xxx">
+      <div class="small" id="homeStopName"></div>
+
+      <label class="f" for="schoolStop">Stop near school (5-digit code)</label>
+      <input id="schoolStop" inputmode="numeric" maxlength="5" placeholder="e.g. 28xxx">
+      <div class="small" id="schoolStopName"></div>
+
+      <div class="btns">
+        <button class="btn ghost" id="nearHome">Find stops near me (for home)</button>
+        <button class="btn ghost" id="nearSchool">Find stops near me (for school)</button>
+      </div>
+      <div id="nearby"></div>
+      <p class="small">Tip: the 5-digit code is printed on the bus stop sign.</p>
+    </div>
+
+    <div class="card">
+      <div class="label">My morning</div>
+      <label class="f" for="bus">My bus</label>
+      <input id="bus" placeholder="99">
+      <label class="f" for="arriveBy">Must reach school by</label>
+      <input id="arriveBy" type="time" value="06:30">
+      <label class="f" for="walk">Walk from home to stop (min)</label>
+      <input id="walk" type="number" min="0" max="60" value="10">
+      <label class="f" for="ride">Bus ride to school (min)</label>
+      <input id="ride" type="number" min="1" max="90" value="15">
+      <label class="f" for="walkEnd">Walk from school stop to school gate (min)</label>
+      <input id="walkEnd" type="number" min="0" max="30" value="3">
+      <label class="f" for="buffer">Extra buffer at the stop (min)</label>
+      <input id="buffer" type="number" min="0" max="15" value="1">
+      <label class="f" for="gap">Longest gap between buses (min)</label>
+      <input id="gap" type="number" min="1" max="40" value="13">
+      <div class="btns"><button class="btn" id="save">Save</button></div>
+      <p class="small" id="saved"></p>
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button data-tab="morning" class="on">🌅 Morning</button>
+  <button data-tab="school">🏫 After school</button>
+  <button data-tab="settings">⚙️ Settings</button>
+</nav>
+
+<script>
+// ---------- data sources ----------
+// Live arrivals: arrivelah (free, no key, proxies LTA DataMall). Stop names: busrouter.sg data.
+const ARRIVAL_URL = code => `https://arrivelah2.busrouter.sg/?id=${code}`;
+const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+// ---------- settings ----------
+const DEFAULTS = { homeStop: '', schoolStop: '', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
+function loadSettings() {
+  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
+}
+function saveSettings(s) { try { localStorage.setItem('mybus', JSON.stringify(s)); } catch {} }
+let S = loadSettings();
+
+// ---------- helpers ----------
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const addMin = (d, m) => new Date(d.getTime() + m * 60000);
+function todayAt(hm, base = new Date()) {
+  const [h, m] = hm.split(':').map(Number);
+  const d = new Date(base); d.setHours(h, m, 0, 0); return d;
+}
+// Next occurrence of the school deadline (today if not passed yet, else tomorrow)
+function nextDeadline(now = new Date()) {
+  let d = todayAt(S.arriveBy, now);
+  if (now > addMin(d, 30)) d = addMin(d, 24 * 60);
+  return d;
+}
+const minsUntil = (d, now = new Date()) => Math.round((d - now) / 60000);
+function fmtMins(m) { return m <= 0 ? 'Arr' : `${m} min`; }
+
+// ---------- stop names ----------
+let STOPS = null; // { code: [lng, lat, name, road] }
+async function loadStops() {
+  if (STOPS) return STOPS;
+  try {
+    const cached = localStorage.getItem('mybus-stops');
+    if (cached) { STOPS = JSON.parse(cached); return STOPS; }
+  } catch {}
+  try {
+    const r = await fetch(STOPS_URL); STOPS = await r.json();
+    try { localStorage.setItem('mybus-stops', JSON.stringify(STOPS)); } catch {}
+  } catch { STOPS = {}; }
+  return STOPS;
+}
+function stopLabel(code) {
+  if (!code) return '';
+  const s = STOPS && STOPS[code];
+  return s ? `${s[2]} · ${s[3]} (${code})` : `Stop ${code}`;
+}
+
+// ---------- live arrivals ----------
+// Returns [{ no, times: [Date, Date, Date] }]
+async function getArrivals(code) {
+  if (DEMO) return demoArrivals(code);
+  const r = await fetch(ARRIVAL_URL(code));
+  if (!r.ok) throw new Error('Could not load bus times');
+  const j = await r.json();
+  return (j.services || []).map(s => ({
+    no: s.no,
+    times: [s.next, s.subsequent || s.next2, s.next3]
+      .filter(x => x && x.time).map(x => new Date(x.time))
+  })).filter(s => s.times.length).sort((a, b) => a.no.localeCompare(b.no, undefined, { numeric: true }));
+}
+function demoArrivals(code) {
+  const now = Date.now(), t = m => new Date(now + m * 60000);
+  if (code === S.schoolStop) return [
+    { no: '99', times: [t(2), t(11), t(24)] }, { no: '182', times: [t(5), t(14), t(22)] },
+    { no: '193', times: [t(9), t(21), t(33)] }, { no: '252', times: [t(0), t(7), t(18)] }];
+  return [{ no: S.bus, times: [t(6), t(16), t(29)] }, { no: '182', times: [t(3), t(12), t(20)] }];
+}
+
+// ---------- MORNING ----------
+function renderPlan() {
+  const deadline = nextDeadline();
+  const latestBus = addMin(deadline, -(+S.ride + +S.walkEnd));
+  const safeLeave = addMin(latestBus, -(+S.gap + +S.walk + +S.buffer));
+  const luckyLeave = addMin(latestBus, -(+S.walk + +S.buffer));
+  $('m-plan').innerHTML = `
+    <div class="row"><span>Reach school by</span><b>${hhmm(deadline)}</b></div>
+    <div class="row"><span>Latest bus ${S.bus} you can catch</span><b>${hhmm(latestBus)}</b></div>
+    <div class="row"><span>Safe time to leave home<br><span class="small">even if you just missed a bus (${S.gap} min gap)</span></span><b class="ok">${hhmm(safeLeave)}</b></div>
+    <div class="row"><span>Absolute latest<br><span class="small">only if a bus comes right when you arrive</span></span><b class="no">${hhmm(luckyLeave)}</b></div>
+    <p class="small" style="margin:8px 0 0">Walk ${S.walk} min → wait → ride ${S.ride} min → walk ${S.walkEnd} min. Adjust in Settings.</p>`;
+}
+
+async function renderMorning() {
+  renderPlan();
+  const now = new Date();
+  const deadline = nextDeadline(now);
+  const latestBus = addMin(deadline, -(+S.ride + +S.walkEnd));
+  $('m-sub').textContent = S.homeStop ? `From ${stopLabel(S.homeStop)}` : 'Set your home bus stop in Settings ⚙️';
+  if (!S.homeStop) { setHero('Set up first', '⚙️', 'Add your home bus stop code in Settings.', ''); $('m-list').innerHTML = ''; return; }
+
+  let services;
+  try { services = await getArrivals(S.homeStop); }
+  catch (e) { $('m-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; return; }
+
+  const mine = services.find(s => s.no === S.bus);
+  const lead = +S.walk + +S.buffer; // minutes needed before bus arrives
+  if (!mine) {
+    setHero('No live times', '—', `No ${S.bus} times right now. Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.`, '');
+  } else {
+    // Each upcoming bus: when to leave home, and will it get me there on time?
+    const options = mine.times.map(t => ({ bus: t, leave: addMin(t, -lead), reach: addMin(t, +S.ride + +S.walkEnd) }));
+    const catchable = options.filter(o => o.leave >= addMin(now, -0.5));
+    const best = catchable[0];
+    if (!best) {
+      setHero('Too late for these', '🏃', `The next ${S.bus} buses come too soon to walk there. Check again in a minute.`, 'late');
+    } else {
+      const m = minsUntil(best.leave, now);
+      const onTime = best.reach <= deadline;
+      const big = m <= 0 ? 'NOW' : `${m} min`;
+      const cls = !onTime ? 'late' : m <= 3 ? 'soon' : '';
+      setHero(m <= 0 ? 'Leave home' : 'Leave home in', big,
+        `Leave at <b>${hhmm(best.leave)}</b> → catch ${S.bus} at <b>${hhmm(best.bus)}</b> → reach ~<b>${hhmm(best.reach)}</b> ${onTime ? '✅ on time' : '⚠️ late'}`, cls);
+    }
+    $('m-list').innerHTML = options.map(o => {
+      const m = minsUntil(o.bus, now), canMake = o.leave >= addMin(now, -0.5), onTime = o.reach <= deadline;
+      return `<div class="row">
+        <span><span class="pill">${S.bus}</span> <span class="mins">${fmtMins(m)}</span> <span class="small">(${hhmm(o.bus)})</span></span>
+        <span class="small" style="text-align:right">${canMake ? `leave ${hhmm(o.leave)}` : '<span class="no">can\'t make it</span>'}${canMake ? (onTime ? '<br><span class="ok">on time</span>' : '<br><span class="no">late</span>') : ''}</span></div>`;
+    }).join('');
+  }
+  const others = services.filter(s => s.no !== S.bus);
+  if (others.length) $('m-list').innerHTML += `<p class="small" style="margin:10px 0 0">Other buses here: ${others.map(s => `${s.no} (${fmtMins(minsUntil(s.times[0], now))})`).join(', ')}</p>`;
+  $('m-updated').textContent = `Updated ${hhmm(now)}${DEMO ? ' · DEMO data' : ''} · refreshes every 30 s`;
+}
+function setHero(label, big, detail, cls) {
+  $('m-hero-label').textContent = label; $('m-hero-big').textContent = big;
+  $('m-hero-detail').innerHTML = detail; $('m-hero').className = 'card hero ' + cls;
+}
+
+// ---------- AFTER SCHOOL ----------
+async function renderSchool() {
+  $('s-sub').textContent = S.schoolStop ? `From ${stopLabel(S.schoolStop)}` : 'Set your school bus stop in Settings ⚙️';
+  if (!S.schoolStop) { $('s-list').innerHTML = ''; return; }
+  const now = new Date();
+  let services;
+  try { services = await getArrivals(S.schoolStop); }
+  catch (e) { $('s-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; return; }
+  if (!services.length) { $('s-list').innerHTML = '<p class="small">No buses right now.</p>'; return; }
+  services.sort((a, b) => (b.no === S.bus) - (a.no === S.bus) || a.times[0] - b.times[0]);
+  $('s-list').innerHTML = services.map(s => {
+    const [n, ...rest] = s.times.map(t => minsUntil(t, now));
+    const walkOut = n - (+S.walkEnd);
+    const hint = n <= 0 ? '<span class="no">arriving</span>'
+      : walkOut <= 0 ? '<span class="mid">go now</span>' : `<span class="ok">walk out in ${walkOut} min</span>`;
+    return `<div class="row">
+      <span><span class="pill" ${s.no === S.bus ? 'style="background:var(--accent);color:#fff"' : ''}>${s.no}</span>
+      <span class="mins">${fmtMins(n)}</span> <span class="small">then ${rest.map(fmtMins).join(', ') || '—'}</span></span>
+      <span class="small" style="text-align:right;white-space:nowrap">${hint}</span></div>`;
+  }).join('');
+  $('s-updated').textContent = `Updated ${hhmm(now)}${DEMO ? ' · DEMO data' : ''} · refreshes every 30 s · "walk out" uses your ${S.walkEnd}-min gate walk`;
+}
+
+// ---------- SETTINGS ----------
+const FIELDS = ['homeStop', 'schoolStop', 'bus', 'arriveBy', 'walk', 'ride', 'walkEnd', 'buffer', 'gap'];
+function fillSettings() {
+  FIELDS.forEach(k => $(k).value = S[k]);
+  $('homeStopName').textContent = stopLabel(S.homeStop);
+  $('schoolStopName').textContent = stopLabel(S.schoolStop);
+}
+['homeStop', 'schoolStop'].forEach(k => $(k).addEventListener('input', () => {
+  $(k + 'Name').textContent = $(k).value.length === 5 ? stopLabel($(k).value) : '';
+}));
+$('save').onclick = () => {
+  FIELDS.forEach(k => S[k] = $(k).value.trim());
+  saveSettings(S); $('saved').textContent = '✅ Saved'; setTimeout(() => $('saved').textContent = '', 2000);
+  fillSettings();
+};
+function distM(lat1, lng1, lat2, lng2) {
+  const R = 6371000, r = Math.PI / 180;
+  const x = (lng2 - lng1) * r * Math.cos((lat1 + lat2) / 2 * r), y = (lat2 - lat1) * r;
+  return Math.round(Math.sqrt(x * x + y * y) * R);
+}
+function findNear(target) {
+  const box = $('nearby');
+  if (!navigator.geolocation) { box.innerHTML = '<p class="err">Location not available on this device.</p>'; return; }
+  box.innerHTML = '<p class="small">Finding your location…</p>';
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    await loadStops();
+    const list = Object.entries(STOPS).map(([code, s]) => ({ code, name: s[2], road: s[3], d: distM(la, lo, s[1], s[0]) }))
+      .sort((a, b) => a.d - b.d).slice(0, 6);
+    if (!list.length) { box.innerHTML = '<p class="err">Could not load the bus stop list.</p>'; return; }
+    box.innerHTML = `<p class="small">Tap the right one:</p>` + list.map(s =>
+      `<button class="pick" data-code="${s.code}"><b>${s.name}</b> · ${s.road}<br><span class="small">${s.code} · ${s.d} m away</span></button>`).join('');
+    box.querySelectorAll('.pick').forEach(b => b.onclick = () => {
+      $(target).value = b.dataset.code; $(target + 'Name').textContent = stopLabel(b.dataset.code);
+      box.innerHTML = '<p class="small">Picked! Press Save.</p>';
+    });
+  }, () => box.innerHTML = '<p class="err">Location permission denied. Type the code from the bus stop sign instead.</p>',
+  { enableHighAccuracy: true, timeout: 10000 });
+}
+$('nearHome').onclick = () => findNear('homeStop');
+$('nearSchool').onclick = () => findNear('schoolStop');
+
+// ---------- tabs & refresh ----------
+let tab = 'morning';
+function show(t) {
+  tab = t;
+  ['morning', 'school', 'settings'].forEach(x => $('tab-' + x).classList.toggle('hidden', x !== t));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  refresh();
+}
+function refresh() {
+  if (tab === 'morning') renderMorning();
+  else if (tab === 'school') renderSchool();
+  else fillSettings();
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.tab));
+setInterval(() => { if (tab !== 'settings') refresh(); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && tab !== 'settings') refresh(); });
+
+// Start: afternoon → open "After school" automatically
+(async () => {
+  if (DEMO && !S.homeStop) { S.homeStop = '11111'; S.schoolStop = '22222'; }
+  loadStops().then(() => { if (tab !== 'settings') refresh(); });
+  const h = new Date().getHours();
+  show(!S.homeStop ? 'settings' : h >= 11 && h < 20 ? 'school' : 'morning');
+})();
+</script>
+</body>
+</html>
