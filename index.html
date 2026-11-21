@@ -210,7 +210,7 @@
       <div class="card-title">My morning</div>
       <div class="two">
         <div><label class="f" for="bus">My bus</label><input id="bus" placeholder="99"></div>
-        <div><label class="f" for="arriveBy">Reach school by</label><input id="arriveBy" type="time" value="06:30"></div>
+        <div><label class="f" for="arriveBy">Reach school by</label><input id="arriveBy" type="time" value="06:40"></div>
         <div><label class="f" for="walk">Walk to stop (min)</label><input id="walk" type="number" inputmode="numeric" min="0" max="60"></div>
         <div><label class="f" for="ride">Bus ride (min)</label><input id="ride" type="number" inputmode="numeric" min="1" max="90"></div>
         <div><label class="f" for="walkEnd">Stop to school (min)</label><input id="walkEnd" type="number" inputmode="numeric" min="0" max="30"></div>
@@ -238,7 +238,7 @@ const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- settings ----------
-const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 8, walkEnd: 1, buffer: 1, gap: 13 };
+const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:40', walk: 10, ride: 8, walkEnd: 1, buffer: 1, gap: 13 };
 function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
 }
@@ -248,7 +248,9 @@ let S = loadSettings();
 if (!S.v && +S.ride === 15) S.ride = DEFAULTS.ride;
 // v3: walk from the stop to the school gate is 1 min, not the old 3-min guess
 if ((S.v || 0) < 3 && +S.walkEnd === 3) S.walkEnd = DEFAULTS.walkEnd;
-S.v = 3;
+// v4: aim to reach school by 06:40 (school starts 07:00), not 06:30
+if ((S.v || 0) < 4 && S.arriveBy === '06:30') S.arriveBy = DEFAULTS.arriveBy;
+S.v = 4;
 if (!S.homeStop) S.homeStop = DEFAULTS.homeStop;
 if (!S.schoolStop) S.schoolStop = DEFAULTS.schoolStop;
 
