@@ -89,6 +89,16 @@
   .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; margin-right: 6px; }
   @keyframes pulse { 50% { opacity: .3; } }
 
+  /* alert toggle */
+  .alert { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; font-family: inherit; color: var(--ink); cursor: pointer; }
+  .alert .txt { flex: 1; font-size: 16px; font-weight: 700; }
+  .alert .txt span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .switch { flex: none; width: 52px; height: 32px; border-radius: 999px; background: var(--chip); position: relative; transition: background .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  .alert.on .switch { background: var(--green); }
+  .alert.on .switch::after { transform: translateX(20px); }
+
   /* plan timeline */
   .tl { position: relative; margin-top: 10px; }
   .tl::before { content: ""; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
@@ -141,6 +151,11 @@
       <div class="hero-msg" id="m-hero-msg"></div>
       <div class="journey hidden" id="m-journey"></div>
     </div>
+
+    <button class="card alert" id="alertBtn" aria-pressed="false">
+      <div class="txt">Tell me when to leave<span id="alertMsg">Plays a sound and keeps the screen on</span></div>
+      <div class="switch"></div>
+    </button>
 
     <div class="card">
       <div class="card-title" id="m-list-title">Next buses</div>
@@ -274,7 +289,15 @@ function stopLabel(code) {
 
 // ---------- live arrivals ----------
 // Returns [{ no, times: [Date, Date, Date] }]
-async function getArrivals(code) {
+const cache = {}; // code -> { at, data }
+async function getArrivals(code, maxAge = 0) {
+  const c = cache[code];
+  if (c && Date.now() - c.at < maxAge) return c.data;
+  const data = await fetchArrivals(code);
+  cache[code] = { at: Date.now(), data };
+  return data;
+}
+async function fetchArrivals(code) {
   if (DEMO) return demoArrivals(code);
   const r = await fetch(ARRIVAL_URL(code));
   if (!r.ok) throw new Error('Could not load bus times');
@@ -285,8 +308,9 @@ async function getArrivals(code) {
       .filter(x => x && x.time).map(x => new Date(x.time))
   })).filter(s => s.times.length).sort((a, b) => a.no.localeCompare(b.no, undefined, { numeric: true }));
 }
+const demoStart = Date.now();
 function demoArrivals(code) {
-  const now = Date.now(), t = m => new Date(now + m * 60000);
+  const now = DEMO && +new URLSearchParams(location.search).get('demo') ? demoStart : Date.now(), t = m => new Date(now + m * 60000);
   if (code === S.schoolStop) return [
     { no: '99', times: [t(2), t(11), t(24)] }, { no: '182', times: [t(5), t(14), t(22)] },
     { no: '193', times: [t(9), t(21), t(33)] }, { no: '252', times: [t(0), t(7), t(18)] }];
@@ -323,7 +347,7 @@ function setHero({ label, big, msg = '', cls = '', badge = '', journey = '', wor
   $('m-journey').innerHTML = journey; $('m-journey').classList.toggle('hidden', !journey);
 }
 
-async function renderMorning() {
+async function renderMorning(maxAge = 0) {
   renderPlan();
   const now = new Date();
   const deadline = nextDeadline(now);
@@ -334,7 +358,7 @@ async function renderMorning() {
   $('m-list-title').textContent = `Next bus ${S.bus}`;
 
   let services;
-  try { services = await getArrivals(S.homeStop); }
+  try { services = await getArrivals(S.homeStop, maxAge); }
   catch (e) {
     setHero({ label: 'No connection', big: '–', cls: 'idle', msg: `Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.` });
     $('m-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; $('m-updated').innerHTML = ''; return;
@@ -356,6 +380,7 @@ async function renderMorning() {
     } else {
       const m = minsUntil(best.leave, now);
       const late = judge && !best.onTime;
+      checkAlert(m);
       setHero({
         label: m <= 0 ? 'Leave home' : 'Leave home in',
         big: m <= 0 ? 'Now' : `${m}<small>min</small>`, word: m <= 0,
@@ -378,6 +403,53 @@ async function renderMorning() {
   if (others.length) $('m-list').innerHTML += `<div class="chips">${others.map(s =>
     `<span class="chip num"><b>${s.no}</b> ${etaText(minsUntil(s.times[0], now))}</span>`).join('')}</div>`;
   $('m-updated').innerHTML = footHtml(now);
+}
+
+// ---------- LEAVE ALERT (sound + keep screen on) ----------
+// Only works while the app is open on screen; web apps cannot ring when the phone is locked.
+let alertOn = false, audio = null, wakeLock = null, lastReady = 0, lastGo = 0;
+try { alertOn = localStorage.getItem('mybus-alert') === '1'; } catch {}
+function tone(freq, start, dur, vol = 0.25) {
+  const o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + start;
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  o.connect(g).connect(audio.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+function chime(kind) {
+  if (!audio || audio.state !== 'running') return;
+  if (kind === 'ready') { tone(660, 0, .35); tone(880, .25, .5); }
+  else [0, 1.1, 2.2].forEach(d => { tone(784, d, .25, .35); tone(988, d + .2, .25, .35); tone(1175, d + .4, .5, .35); });
+}
+function unlockAudio() { // must run inside a tap
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state !== 'running') audio.resume().then(drawAlert);
+  } catch {}
+}
+async function keepAwake() {
+  if (!alertOn || document.hidden || wakeLock || !('wakeLock' in navigator)) return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch {}
+}
+function drawAlert() {
+  $('alertBtn').classList.toggle('on', alertOn); $('alertBtn').setAttribute('aria-pressed', alertOn);
+  $('alertMsg').textContent = !alertOn ? 'Plays a sound and keeps the screen on'
+    : !audio || audio.state !== 'running' ? 'Tap anywhere to switch the sound on'
+    : 'On. Keep this app open, with silent mode off';
+}
+$('alertBtn').onclick = () => {
+  alertOn = !alertOn;
+  try { localStorage.setItem('mybus-alert', alertOn ? '1' : '0'); } catch {}
+  if (alertOn) { unlockAudio(); keepAwake(); setTimeout(() => chime('ready'), 150); }
+  else if (wakeLock) wakeLock.release();
+  drawAlert();
+};
+document.addEventListener('pointerdown', () => { if (alertOn && (!audio || audio.state !== 'running')) unlockAudio(); });
+// m = whole minutes until it is time to leave for the next catchable bus
+function checkAlert(m) {
+  if (!alertOn) return;
+  const t = Date.now();
+  if (m <= 0 && t - lastGo > 4 * 60000) { lastGo = t; lastReady = t; chime('go'); }
+  else if (m > 0 && m <= 2 && t - lastReady > 4 * 60000) { lastReady = t; chime('ready'); }
 }
 
 // ---------- AFTER SCHOOL ----------
@@ -466,14 +538,17 @@ function show(t) {
   window.scrollTo(0, 0);
   refresh();
 }
-function refresh() {
-  if (tab === 'morning') renderMorning();
+function refresh(maxAge = 0) {
+  if (tab === 'morning') renderMorning(maxAge);
   else if (tab === 'school') renderSchool();
   else fillSettings();
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.tab));
 setInterval(() => { if (tab !== 'settings') refresh(); }, 30000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && tab !== 'settings') refresh(); });
+// Between fetches, re-check the countdown every 5 s from the last data so the alert is not late
+setInterval(() => { if (tab === 'morning') refresh(60000); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { keepAwake(); if (tab !== 'settings') refresh(); } });
+drawAlert(); keepAwake();
 
 // Start: 11am–8pm opens "After school", otherwise "Morning"
 loadStops().then(() => refresh());
