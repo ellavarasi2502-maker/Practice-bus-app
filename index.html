@@ -99,13 +99,17 @@
 
     <div class="card">
       <div class="label">Bus stops</div>
-      <label class="f" for="homeStop">Stop near home (5-digit code)</label>
-      <input id="homeStop" inputmode="numeric" maxlength="5" placeholder="e.g. 28xxx">
+      <label class="f" for="homeStop">Morning: where I board (near home)</label>
+      <input id="homeStop" inputmode="numeric" maxlength="5" placeholder="27351">
       <div class="small" id="homeStopName"></div>
 
-      <label class="f" for="schoolStop">Stop near school (5-digit code)</label>
+      <label class="f" for="schoolStop">After school: where I board (e.g. Xingnan Pr Sch)</label>
       <input id="schoolStop" inputmode="numeric" maxlength="5" placeholder="e.g. 28xxx">
       <div class="small" id="schoolStopName"></div>
+
+      <label class="f" for="q">Don't know the code? Search by name</label>
+      <input id="q" placeholder="e.g. Xingnan">
+      <div id="results"></div>
 
       <div class="btns">
         <button class="btn ghost" id="nearHome">Find stops near me (for home)</button>
@@ -151,12 +155,13 @@ const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- settings ----------
-const DEFAULTS = { homeStop: '', schoolStop: '', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
+const DEFAULTS = { homeStop: '27351', schoolStop: '', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
 function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
 }
 function saveSettings(s) { try { localStorage.setItem('mybus', JSON.stringify(s)); } catch {} }
 let S = loadSettings();
+if (!S.homeStop) S.homeStop = DEFAULTS.homeStop;
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
@@ -280,7 +285,7 @@ function setHero(label, big, detail, cls) {
 
 // ---------- AFTER SCHOOL ----------
 async function renderSchool() {
-  $('s-sub').textContent = S.schoolStop ? `From ${stopLabel(S.schoolStop)}` : 'Set your school bus stop in Settings ⚙️';
+  $('s-sub').textContent = S.schoolStop ? `From ${stopLabel(S.schoolStop)}` : 'Pick your after-school stop in Settings ⚙️ (search "Xingnan")';
   if (!S.schoolStop) { $('s-list').innerHTML = ''; return; }
   const now = new Date();
   let services;
@@ -340,6 +345,22 @@ function findNear(target) {
   }, () => box.innerHTML = '<p class="err">Location permission denied. Type the code from the bus stop sign instead.</p>',
   { enableHighAccuracy: true, timeout: 10000 });
 }
+// Search stops by name; each result can be set as morning or after-school stop
+$('q').addEventListener('input', async () => {
+  const q = $('q').value.trim().toLowerCase(), box = $('results');
+  if (q.length < 3) { box.innerHTML = ''; return; }
+  await loadStops();
+  const list = Object.entries(STOPS).filter(([c, s]) => (s[2] + ' ' + s[3] + ' ' + c).toLowerCase().includes(q)).slice(0, 8);
+  box.innerHTML = list.length ? list.map(([c, s]) =>
+    `<div class="pick"><b>${s[2]}</b> · ${s[3]} <span class="small">(${c})</span>
+     <div class="btns"><button class="btn ghost" data-t="homeStop" data-code="${c}">Use for morning</button>
+     <button class="btn ghost" data-t="schoolStop" data-code="${c}">Use for after school</button></div></div>`).join('')
+    : `<p class="small">${Object.keys(STOPS).length ? 'No stop found.' : 'Could not load the stop list. Check your internet.'}</p>`;
+  box.querySelectorAll('button').forEach(b => b.onclick = () => {
+    $(b.dataset.t).value = b.dataset.code; $(b.dataset.t + 'Name').textContent = stopLabel(b.dataset.code);
+    box.innerHTML = '<p class="small">Picked! Press Save.</p>'; $('q').value = '';
+  });
+});
 $('nearHome').onclick = () => findNear('homeStop');
 $('nearSchool').onclick = () => findNear('schoolStop');
 
