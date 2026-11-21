@@ -404,7 +404,9 @@ async function renderMorning(maxAge = 0) {
       const leave = addMin(t, -lead), reach = addMin(t, +S.ride + +S.walkEnd);
       return { bus: t, leave, reach, canMake: leave >= addMin(now, -0.5), onTime: reach <= deadline };
     });
-    const best = options.find(o => o.canMake);
+    // In the morning, aim for the LATEST bus that still gets me there on time (leave as late as possible).
+    // If none is on time, or outside the morning, aim for the earliest catchable bus.
+    const best = (judge && options.filter(o => o.canMake && o.onTime).pop()) || options.find(o => o.canMake);
     if (!best) {
       setHero({ label: 'Hang on', big: 'Wait', word: true, cls: 'idle', msg: `The next ${S.bus}s come too soon to walk there. New times will show shortly.` });
     } else {
@@ -415,7 +417,7 @@ async function renderMorning(maxAge = 0) {
         label: m <= 0 ? 'Leave home' : 'Leave home in',
         big: m <= 0 ? 'Now' : `${m}<small>min</small>`, word: m <= 0,
         cls: late ? 'late' : m <= 3 ? 'soon' : '',
-        badge: !judge ? '' : late ? 'Running late' : 'On time',
+        badge: !judge ? '' : late ? 'Running late' : 'Latest on-time bus',
         journey: `<div class="step"><div class="t num">${hhmm(best.leave)}</div><div class="l">Leave home</div></div>
           <div class="step"><div class="t num">${hhmm(best.bus)}</div><div class="l">Bus ${S.bus}</div></div>
           <div class="step"><div class="t num">${hhmm(best.reach)}</div><div class="l">At school</div></div>`
@@ -426,7 +428,7 @@ async function renderMorning(maxAge = 0) {
         : judge && !o.onTime ? `<span class="tag bad">Late · leave ${hhmm(o.leave)}</span>`
         : `<span class="tag go">Leave ${hhmm(o.leave)}</span>`;
       return `<div class="bus ${o.canMake ? '' : 'dim'}">
-        <div class="eta"><div class="m num">${etaHtml(minsUntil(o.bus, now))}</div><div class="s num">arrives ${hhmm(o.bus)}</div></div>${tag}</div>`;
+        <div class="eta"><div class="m num">${etaHtml(minsUntil(o.bus, now))}</div><div class="s num">arrives ${hhmm(o.bus)}${o === best && judge ? ' · <b>your bus</b>' : ''}</div></div>${tag}</div>`;
     }).join('');
   }
   const others = services.filter(s => s.no !== S.bus);
