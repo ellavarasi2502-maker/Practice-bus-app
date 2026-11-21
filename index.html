@@ -155,13 +155,14 @@ const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- settings ----------
-const DEFAULTS = { homeStop: '27351', schoolStop: '', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
+const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
 function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
 }
 function saveSettings(s) { try { localStorage.setItem('mybus', JSON.stringify(s)); } catch {} }
 let S = loadSettings();
 if (!S.homeStop) S.homeStop = DEFAULTS.homeStop;
+if (!S.schoolStop) S.schoolStop = DEFAULTS.schoolStop;
 
 // ---------- helpers ----------
 const $ = id => document.getElementById(id);
