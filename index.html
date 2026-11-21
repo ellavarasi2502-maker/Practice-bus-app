@@ -6,134 +6,157 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="My Bus">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f3f1ea" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0d1512" media="(prefers-color-scheme: dark)">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23123c2f'/><text x='50' y='68' font-size='50' font-weight='800' font-family='system-ui' text-anchor='middle' fill='%23c6f24e'>99</text></svg>">
+<meta name="theme-color" content="#f7f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b201d" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
 <title>My Bus</title>
 <style>
   :root {
-    --bg: #f3f1ea; --card: #ffffff; --ink: #14201b; --muted: #6b756f; --line: #e6e2d8;
-    --hero: #123c2f; --hero-ink: #f1f6ee; --lime: #c6f24e;
-    --green: #1a7f55; --green-soft: #dff3e6; --amber: #f2b33d; --red: #c8402f; --red-soft: #fbe4df;
-    --chip: #ece9df; --shadow: 0 1px 2px rgba(20,32,27,.04), 0 8px 24px rgba(20,32,27,.06);
+    --bg: #f7f2ea; --card: #fffdf9; --ink: #2f3a33; --muted: #7c857d; --line: #ece5d8;
+    --sage: #4f6f5b; --sage-soft: #e3ecdf; --chip: #f0eadf;
+    --honey: #e8c06a; --honey-soft: #f8ecc9; --clay: #b96a54; --clay-soft: #f6e0d8;
+    /* meadow art */
+    --stem: #7d9a80; --leaf: #9db79b; --pollen: #e9bf5d; --sun: #fff3d6;
+    --f1: #e8b4b0; --f2: #c9bce2; --f3: #fff9f0; --f4: #d98f8f;
+    --sky-a: #f8ddd0; --sky-b: #f6ead9; --sky-c: #e2ebd9;
+    --shadow: 0 1px 2px rgba(70,60,40,.04), 0 10px 28px rgba(70,60,40,.07);
+    --serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #0d1512; --card: #16211c; --ink: #e9efe9; --muted: #8e9a93; --line: #24322b;
-      --hero: #1b4d3c; --green: #5fd39a; --green-soft: #173527; --red: #ff8a78; --red-soft: #3a1c17;
-      --chip: #1f2c26; --shadow: none; }
+    :root { --bg: #1b201d; --card: #242a26; --ink: #ebe7df; --muted: #979f97; --line: #333b35;
+      --sage: #a9c7ad; --sage-soft: #2e3b32; --chip: #2d342f;
+      --honey: #d9b566; --honey-soft: #453c25; --clay: #e6a08c; --clay-soft: #46302a;
+      --stem: #6f8d74; --leaf: #5f7d64; --pollen: #d9b566; --sun: #e9e4d0;
+      --f1: #c79a98; --f2: #a79bc4; --f3: #e6dfd2; --f4: #b97a7c;
+      --sky-a: #2c3145; --sky-b: #2f3644; --sky-c: #2c3a33; --shadow: none; }
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { -webkit-text-size-adjust: 100%; }
   body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
-  main { max-width: 480px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 16px calc(110px + env(safe-area-inset-bottom)); }
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 480px; margin: 0 auto; padding: calc(20px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom)); }
   .num { font-variant-numeric: tabular-nums; }
+  .hidden { display: none !important; }
 
   /* header */
-  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--muted); }
-  h1 { font-size: 30px; line-height: 1.1; letter-spacing: -.8px; font-weight: 800; margin: 4px 0 10px; }
-  .stop { display: inline-flex; align-items: center; gap: 6px; background: var(--chip); border-radius: 999px;
-    padding: 6px 12px 6px 9px; font-size: 13px; font-weight: 600; margin-bottom: 16px; max-width: 100%; }
-  .stop svg { flex: none; }
+  .eyebrow { font-size: 13px; color: var(--muted); letter-spacing: .3px; }
+  h1 { font-family: var(--serif); font-size: 34px; line-height: 1.1; font-weight: 500; letter-spacing: -.4px; margin: 2px 0 10px; }
+  .stop { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; margin-bottom: 16px; max-width: 100%; }
+  .stop svg { flex: none; color: var(--stem); }
   .stop span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* cards */
-  .card { background: var(--card); border-radius: 22px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-  .card-title { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .card { background: var(--card); border-radius: 24px; padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card-title { font-family: var(--serif); font-size: 19px; font-weight: 500; margin-bottom: 4px; }
 
-  /* hero */
-  .hero { background: var(--hero); color: var(--hero-ink); border-radius: 28px; padding: 22px 22px 18px; margin-bottom: 14px;
-    position: relative; overflow: hidden; box-shadow: var(--shadow); transition: background .3s; }
-  .hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 200px; height: 200px; border-radius: 50%;
-    background: rgba(255,255,255,.06); }
-  .hero-top { display: flex; justify-content: space-between; align-items: center; }
-  .hero-label { font-size: 13px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; opacity: .8; }
-  .badge { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.16); position: relative; z-index: 1; }
-  .hero-big { font-size: 96px; font-weight: 800; letter-spacing: -4px; line-height: 1; margin: 6px 0 2px; color: var(--lime); }
-  .hero-big small { font-size: 26px; letter-spacing: 0; font-weight: 700; margin-left: 8px; }
-  .hero-big.word { font-size: 64px; letter-spacing: -2px; }
-  .hero-msg { font-size: 15px; opacity: .9; }
-  .hero.soon { background: var(--amber); color: #2a1d00; } .hero.soon .hero-big { color: #2a1d00; }
-  .hero.late { background: var(--red); color: #fff; } .hero.late .hero-big { color: #fff; }
-  @media (prefers-color-scheme: dark) { .hero.late { background: #a83424; } }
-  .hero.idle { background: var(--card); color: var(--ink); } .hero.idle .hero-big { color: var(--ink); }
-
-  /* journey strip in hero */
-  .journey { display: flex; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.18); }
-  .hero.soon .journey { border-color: rgba(0,0,0,.15); }
+  /* hero: a little meadow scene, with the times underneath */
+  .hero { background: var(--card); border-radius: 30px; margin-bottom: 14px; overflow: hidden; box-shadow: var(--shadow); }
+  .scene { position: relative; padding: 22px 22px 20px; min-height: 206px;
+    background: linear-gradient(180deg, var(--sky-a) 0%, var(--sky-b) 55%, var(--sky-c) 100%); transition: background .4s; }
+  .art { position: absolute; right: 0; bottom: 0; height: 100%; width: 62%; pointer-events: none; }
+  .art svg { position: absolute; right: 0; bottom: 0; height: 100%; width: 100%; }
+  .hero-top, .hero-big, .hero-msg { position: relative; z-index: 1; }
+  .hero-label { font-size: 15px; color: var(--ink); opacity: .75; }
+  .badge { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px;
+    background: rgba(255,255,255,.6); color: var(--ink); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  @media (prefers-color-scheme: dark) { .badge { background: rgba(255,255,255,.12); } }
+  .hero-big { font-family: var(--serif); font-size: 104px; font-weight: 400; letter-spacing: -4px; line-height: .95; margin: 4px 0 0; color: var(--ink); }
+  .hero-big small { font-size: 24px; letter-spacing: 0; margin-left: 8px; opacity: .75; }
+  .hero-big.word { font-size: 68px; letter-spacing: -2px; line-height: 1.2; }
+  .hero-msg { font-size: 15px; max-width: 62%; margin-top: 6px; }
+  .hero.soon .scene { --sky-a: #f6d79a; --sky-b: #f8e6bf; --sky-c: #eee6c6; }
+  .hero.late .scene { --sky-a: #e9b9a8; --sky-b: #f1d3c4; --sky-c: #ead9cf; }
+  .hero.idle .scene { --sky-a: #e6ebe6; --sky-b: #eef0ea; --sky-c: #e6ecdf; }
+  .hero.pm .scene { --sky-a: #f6dfb0; --sky-b: #f8ecd2; --sky-c: #e6ecd6; }
+  @media (prefers-color-scheme: dark) {
+    .hero.soon .scene { --sky-a: #4a4028; --sky-b: #3e3a2c; --sky-c: #2f3a30; }
+    .hero.late .scene { --sky-a: #4d302b; --sky-b: #40312f; --sky-c: #30382f; }
+    .hero.idle .scene { --sky-a: #2a302c; --sky-b: #2a302c; --sky-c: #2a342d; }
+    .hero.pm .scene { --sky-a: #3d3a2c; --sky-b: #353a30; --sky-c: #2c3a33; }
+  }
+  .journey { display: flex; padding: 16px 22px 18px; }
   .step { flex: 1; position: relative; }
-  .step .t { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
-  .step .l { font-size: 12px; opacity: .8; font-weight: 600; }
-  .step + .step { padding-left: 14px; }
-  .step + .step::before { content: "›"; position: absolute; left: -4px; top: 2px; font-size: 20px; opacity: .5; }
+  .step .t { font-family: var(--serif); font-size: 24px; letter-spacing: -.3px; }
+  .step .l { font-size: 12px; color: var(--muted); }
+  .step + .step { padding-left: 16px; }
+  .step + .step::before { content: ""; position: absolute; left: -2px; top: 14px; width: 8px; height: 1.5px; background: var(--stem); opacity: .6; }
+
+  /* alert toggle */
+  .alert { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; font-family: inherit; color: var(--ink); cursor: pointer; }
+  .alert .txt { flex: 1; font-size: 16px; font-weight: 600; }
+  .alert .txt span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .switch { flex: none; width: 52px; height: 32px; border-radius: 999px; background: var(--chip); position: relative; transition: background .2s; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s; }
+  .alert.on .switch { background: var(--stem); }
+  .alert.on .switch::after { transform: translateX(20px); }
 
   /* bus rows */
   .bus { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-top: 1px solid var(--line); }
   .bus:first-of-type { border-top: 0; }
-  .bus.dim { opacity: .45; }
-  .plate { flex: none; min-width: 50px; text-align: center; padding: 7px 8px; border-radius: 11px; font-weight: 800; font-size: 17px;
-    background: var(--chip); letter-spacing: -.3px; }
-  .plate.mine { background: var(--hero); color: var(--lime); }
+  .bus.dim { opacity: .42; }
+  .plate { flex: none; min-width: 50px; text-align: center; padding: 7px 8px; border-radius: 14px; font-weight: 600; font-size: 16px; background: var(--chip); }
+  .plate.mine { background: var(--sage); color: var(--card); }
   .eta { flex: 1; min-width: 0; }
-  .eta .m { font-size: 24px; font-weight: 800; letter-spacing: -.6px; line-height: 1.1; }
-  .eta .m small { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0; margin-left: 3px; }
+  .eta .m { font-family: var(--serif); font-size: 27px; letter-spacing: -.4px; line-height: 1.1; }
+  .eta .m small { font-family: -apple-system, system-ui, sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
   .eta .s { font-size: 13px; color: var(--muted); }
-  .tag { flex: none; font-size: 13px; font-weight: 700; padding: 6px 11px; border-radius: 999px; white-space: nowrap; background: var(--chip); color: var(--muted); }
-  .tag.go { background: var(--green-soft); color: var(--green); }
-  .tag.now { background: var(--amber); color: #2a1d00; }
-  .tag.bad { background: var(--red-soft); color: var(--red); }
+  .eta .s b { color: var(--sage); font-weight: 600; }
+  .tag { flex: none; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; white-space: nowrap; background: var(--chip); color: var(--muted); }
+  .tag.go { background: var(--sage-soft); color: var(--sage); }
+  .tag.now { background: var(--honey-soft); color: var(--ink); }
+  .tag.bad { background: var(--clay-soft); color: var(--clay); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .chip { font-size: 13px; background: var(--chip); border-radius: 999px; padding: 4px 10px; color: var(--muted); }
-  .chip b { color: var(--ink); }
+  .chip { font-size: 13px; background: var(--chip); border-radius: 999px; padding: 4px 11px; color: var(--muted); }
+  .chip b { color: var(--ink); font-weight: 600; }
   .foot { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
-  .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; margin-right: 6px; }
+  .live { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--stem); animation: pulse 2.4s infinite; margin-right: 6px; }
   @keyframes pulse { 50% { opacity: .3; } }
 
-  /* alert toggle */
-  .alert { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; font-family: inherit; color: var(--ink); cursor: pointer; }
-  .alert .txt { flex: 1; font-size: 16px; font-weight: 700; }
-  .alert .txt span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 2px; }
-  .switch { flex: none; width: 52px; height: 32px; border-radius: 999px; background: var(--chip); position: relative; transition: background .2s; }
-  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
-  .alert.on .switch { background: var(--green); }
-  .alert.on .switch::after { transform: translateX(20px); }
-
-  /* plan timeline */
-  .tl { position: relative; margin-top: 10px; }
-  .tl::before { content: ""; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
+  /* plan (folds away) */
+  details summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary .card-title { margin: 0; }
+  details summary .sum { font-size: 14px; color: var(--muted); }
+  details summary .sum b { color: var(--sage); font-family: var(--serif); font-size: 18px; font-weight: 500; }
+  details summary::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
+    transform: rotate(45deg); margin: -4px 4px 0 2px; transition: transform .2s; }
+  details[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+  .tl { position: relative; margin-top: 12px; }
+  .tl::before { content: ""; position: absolute; left: 6px; top: 14px; bottom: 14px; width: 1.5px; background: var(--leaf); opacity: .6; }
   .tl-item { display: flex; align-items: center; gap: 14px; padding: 9px 0; position: relative; }
-  .dot { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--card); border: 3px solid var(--muted); z-index: 1; }
-  .dot.g { border-color: var(--green); background: var(--green); } .dot.r { border-color: var(--red); }
-  .tl-time { font-size: 22px; font-weight: 800; letter-spacing: -.5px; width: 66px; flex: none; }
+  .dot { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--card); border: 2px solid var(--leaf); z-index: 1; }
+  .dot.g { border-color: var(--stem); background: var(--stem); } .dot.r { border-color: var(--f4); }
+  .tl-time { font-family: var(--serif); font-size: 24px; width: 70px; flex: none; }
   .tl-text { font-size: 15px; font-weight: 600; line-height: 1.25; }
   .tl-text span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
   .note { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .note b { color: var(--ink); }
 
   /* settings */
   label.f { display: block; margin: 14px 0 5px; font-weight: 600; font-size: 14px; }
-  input { width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 13px; border: 1.5px solid var(--line);
+  input { width: 100%; padding: 12px 14px; font-size: 16px; border-radius: 14px; border: 1.5px solid var(--line);
     background: var(--bg); color: var(--ink); font-family: inherit; }
-  input:focus { outline: none; border-color: var(--green); }
+  input:focus { outline: none; border-color: var(--stem); }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
-  .btn { border: 0; border-radius: 13px; padding: 12px 16px; font-size: 15px; font-weight: 700; font-family: inherit;
-    background: var(--hero); color: var(--lime); cursor: pointer; }
-  .btn.ghost { background: var(--chip); color: var(--ink); font-weight: 600; font-size: 14px; padding: 10px 13px; }
+  .btn { border: 0; border-radius: 16px; padding: 12px 16px; font-size: 15px; font-weight: 600; font-family: inherit;
+    background: var(--sage); color: var(--card); cursor: pointer; }
+  .btn.ghost { background: var(--chip); color: var(--ink); font-size: 14px; padding: 10px 13px; }
   .btn.wide { width: 100%; padding: 15px; font-size: 16px; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .hint { font-size: 13px; color: var(--muted); margin-top: 5px; min-height: 18px; }
-  .pick { background: var(--bg); border: 1.5px solid var(--line); border-radius: 13px; padding: 11px 13px; margin-top: 8px; font-size: 15px;
+  .pick { background: var(--bg); border: 1.5px solid var(--line); border-radius: 14px; padding: 11px 13px; margin-top: 8px; font-size: 15px;
     width: 100%; text-align: left; color: var(--ink); font-family: inherit; }
-  .err { color: var(--red); font-size: 14px; margin: 8px 0 0; }
-  .hidden { display: none; }
+  .err { color: var(--clay); font-size: 14px; margin: 8px 0 0; }
 
   /* tab bar */
   nav { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom));
-    width: min(448px, calc(100% - 32px)); background: var(--card); border-radius: 22px; display: flex; padding: 6px;
-    box-shadow: 0 2px 6px rgba(20,32,27,.08), 0 14px 34px rgba(20,32,27,.16); border: 1px solid var(--line); }
-  nav button { flex: 1; border: 0; background: none; color: var(--muted); padding: 9px 4px 8px; font-size: 12px; font-weight: 700;
-    border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; cursor: pointer; }
-  nav button.on { background: var(--hero); color: var(--lime); }
+    width: min(448px, calc(100% - 32px)); background: var(--card); border-radius: 26px; display: flex; padding: 6px;
+    box-shadow: 0 2px 6px rgba(70,60,40,.07), 0 14px 34px rgba(70,60,40,.14); border: 1px solid var(--line); }
+  nav button { flex: 1; border: 0; background: none; color: var(--muted); padding: 9px 4px 8px; font-size: 12px; font-weight: 600;
+    border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; cursor: pointer; }
+  nav button.on { background: var(--sage-soft); color: var(--sage); }
 </style>
 </head>
 <body>
@@ -141,14 +164,18 @@
 
   <!-- ============ MORNING ============ -->
   <section id="tab-morning">
-    <div class="eyebrow">Morning</div>
-    <h1>To school</h1>
-    <div class="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="m-sub">Loading…</span></div>
+    <div class="eyebrow" id="m-date">Morning</div>
+    <h1 id="m-greet">Good morning</h1>
+    <div class="stop"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="m-sub">Loading…</span></div>
 
     <div class="hero" id="m-hero">
-      <div class="hero-top"><div class="hero-label" id="m-hero-label">Leave home in</div><div class="badge hidden" id="m-badge"></div></div>
-      <div class="hero-big num" id="m-hero-big">–</div>
-      <div class="hero-msg" id="m-hero-msg"></div>
+      <div class="scene">
+        <div class="art" data-art="am"></div>
+        <div class="hero-top"><div class="hero-label" id="m-hero-label">Leave home in</div></div>
+        <div class="hero-big num" id="m-hero-big">–</div>
+        <div class="hero-msg" id="m-hero-msg"></div>
+        <div class="badge hidden" id="m-badge"></div>
+      </div>
       <div class="journey hidden" id="m-journey"></div>
     </div>
 
@@ -163,17 +190,28 @@
       <p class="foot" id="m-updated"></p>
     </div>
 
-    <div class="card">
-      <div class="card-title">Tomorrow's plan</div>
+    <details class="card">
+      <summary><div class="card-title">Tomorrow's plan</div><div class="sum" id="m-plan-sum"></div></summary>
       <div id="m-plan"></div>
-    </div>
+    </details>
   </section>
 
   <!-- ============ AFTER SCHOOL ============ -->
   <section id="tab-school" class="hidden">
-    <div class="eyebrow">After school</div>
-    <h1>Going home</h1>
-    <div class="stop"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="s-sub">Loading…</span></div>
+    <div class="eyebrow" id="s-date">After school</div>
+    <h1>Heading home</h1>
+    <div class="stop"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg><span id="s-sub">Loading…</span></div>
+
+    <div class="hero pm" id="s-hero">
+      <div class="scene">
+        <div class="art" data-art="pm"></div>
+        <div class="hero-top"><div class="hero-label" id="s-hero-label">Next bus home in</div></div>
+        <div class="hero-big num" id="s-hero-big">–</div>
+        <div class="hero-msg" id="s-hero-msg"></div>
+        <div class="badge hidden" id="s-badge"></div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-title">Buses at this stop</div>
       <div id="s-list"></div>
@@ -224,12 +262,46 @@
 </main>
 
 <nav>
-  <button data-tab="morning" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg>Morning</button>
-  <button data-tab="school"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="15" rx="3"/><path d="M5 12h14M8.5 15h.01M15.5 15h.01M8 18v2.5M16 18v2.5"/></svg>After school</button>
-  <button data-tab="settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Settings</button>
+  <button data-tab="morning" class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 7v2.5M5.2 10.2l1.7 1.7M18.8 10.2l-1.7 1.7"/></svg>Morning</button>
+  <button data-tab="school"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="14" rx="3.5"/><path d="M5 11.5h14M8.5 14.5h.01M15.5 14.5h.01M8 17.5V20M16 17.5V20"/></svg>After school</button>
+  <button data-tab="settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Settings</button>
 </nav>
 
 <script>
+
+// ---------- meadow artwork (drawn in code, colours follow the theme) ----------
+function meadowSvg(kind) {
+  const st = c => `style="fill:var(${c})"`;
+  const stem = (x0, x, y, bend) => `<path d="M${x0} 172 Q ${x0 + bend} ${(172 + y) / 2} ${x} ${y}" fill="none" style="stroke:var(--stem)" stroke-width="1.8" stroke-linecap="round"/>`;
+  const leaf = (x, y, len, ang) => `<path d="M0 0 C ${len * .3} ${-len * .38}, ${len * .8} ${-len * .3}, ${len} 0 C ${len * .8} ${len * .3}, ${len * .3} ${len * .38}, 0 0Z" transform="translate(${x} ${y}) rotate(${ang})" ${st('--leaf')}/>`;
+  const flower = (x, y, r, n, col, rot = 0) => {
+    let p = '';
+    for (let i = 0; i < n; i++) p += `<ellipse cx="${x}" cy="${y - r * .6}" rx="${r * .33}" ry="${r * .6}" transform="rotate(${rot + i * 360 / n} ${x} ${y})"/>`;
+    return `<g ${st(col)} opacity=".96">${p}</g><circle cx="${x}" cy="${y}" r="${r * .27}" ${st('--pollen')}/>`;
+  };
+  const bud = (x, y, r, col, ang = 0) => `<g transform="translate(${x} ${y}) rotate(${ang})"><path d="M0 0 C ${-r} ${-r * .4}, ${-r * .9} ${-r * 1.9}, 0 ${-r * 2.3} C ${r * .9} ${-r * 1.9}, ${r} ${-r * .4}, 0 0Z" ${st(col)}/><path d="M0 0 C ${-r * .5} ${-r * .2}, ${-r * .8} ${-r * .9}, ${-r * .75} ${-r * 1.3} C ${-r * .3} ${-r}, 0 ${-r * .6}, 0 0Z" ${st('--leaf')}/><path d="M0 0 C ${r * .5} ${-r * .2}, ${r * .8} ${-r * .9}, ${r * .75} ${-r * 1.3} C ${r * .3} ${-r}, 0 ${-r * .6}, 0 0Z" ${st('--leaf')}/></g>`;
+  const sprig = (x0, x, y, col) => { // lavender-like spike
+    let p = stem(x0, x, y, (x - x0) * .2);
+    for (let i = 0; i < 7; i++) { const t = i / 7, yy = y + t * 44, xx = x + (x0 - x) * t * .28, w = 3 + t * 1.6;
+      p += `<ellipse cx="${xx - w}" cy="${yy}" rx="${w}" ry="3.6" transform="rotate(-28 ${xx - w} ${yy})" ${st(col)}/><ellipse cx="${xx + w}" cy="${yy}" rx="${w}" ry="3.6" transform="rotate(28 ${xx + w} ${yy})" ${st(col)}/>`; }
+    return p + `<ellipse cx="${x}" cy="${y - 4}" rx="3" ry="4.5" ${st(col)}/>`;
+  };
+  const grass = xs => xs.map(([x, h, b]) => `<path d="M${x} 172 Q ${x + b * .4} ${172 - h * .6} ${x + b} ${172 - h}" fill="none" style="stroke:var(--leaf)" stroke-width="1.6" stroke-linecap="round"/>`).join('');
+  const am = kind === 'am';
+  return `<svg viewBox="0 0 230 170" preserveAspectRatio="xMaxYMax meet" aria-hidden="true">
+    <circle cx="${am ? 168 : 60}" cy="${am ? 52 : 44}" r="${am ? 40 : 30}" ${st('--sun')} opacity=".75"/>
+    ${grass([[40, 26, -8], [58, 34, 6], [84, 22, -5], [128, 30, 7], [160, 24, -6], [218, 30, -7]])}
+    ${sprig(70, 62, 86, '--f2')}${sprig(214, 221, 70, '--f2')}
+    ${stem(112, 104, 104, -6)}${leaf(110, 140, 20, -150)}${flower(104, 104, 13, 7, '--f3', 10)}
+    ${stem(150, 146, 52, 10)}${leaf(151, 128, 26, -30)}${leaf(150, 108, 22, -155)}${flower(146, 52, 23, 8, am ? '--f1' : '--f4')}
+    ${stem(184, 190, 88, -8)}${leaf(184, 140, 20, -35)}${flower(190, 88, 17, 6, am ? '--f4' : '--f1', 15)}
+    ${stem(128, 124, 128, 4)}${bud(124, 128, 7, '--f1', -8)}
+    ${stem(200, 204, 128, 3)}${bud(204, 128, 6, '--f3', 10)}
+    ${grass([[100, 20, 5], [140, 18, -4], [174, 22, 5], [196, 16, -3]])}
+  </svg>`;
+}
+document.querySelectorAll('.art').forEach(a => { a.innerHTML = meadowSvg(a.dataset.art); });
+
 // ---------- data sources ----------
 // Live arrivals: arrivelah (free, no key, proxies LTA DataMall). Stop names: busrouter.sg data.
 const ARRIVAL_URL = code => `https://arrivelah2.busrouter.sg/?id=${code}`;
@@ -356,6 +428,7 @@ function renderPlan() {
   const safeLeave = addMin(latestBus, -(+S.gap + lead));
   const lastLeave = addMin(latestBus, -lead);
   const first = firstBus(S.homeStop, S.bus, deadline);
+  $('m-plan-sum').innerHTML = `leave by <b class="num">${hhmm(safeLeave)}</b>`;
   $('m-plan').innerHTML = `<div class="tl">
     <div class="tl-item"><div class="dot g"></div><div class="tl-time num">${hhmm(safeLeave)}</div>
       <div class="tl-text">Leave home<span>Safe even if you just miss a bus</span></div></div>
@@ -387,6 +460,9 @@ async function renderMorning(maxAge = 0) {
   const latestBus = addMin(deadline, -(+S.ride + +S.walkEnd));
   const lead = +S.walk + +S.buffer; // minutes needed before the bus arrives
   $('m-sub').textContent = stopLabel(S.homeStop);
+  const hr = now.getHours();
+  $('m-greet').textContent = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+  $('m-date').textContent = now.toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' });
   $('m-list-title').textContent = `Next bus ${S.bus}`;
 
   let services;
@@ -410,7 +486,7 @@ async function renderMorning(maxAge = 0) {
     // If none is on time, or outside the morning, aim for the earliest catchable bus.
     const best = (judge && options.filter(o => o.canMake && o.onTime).pop()) || options.find(o => o.canMake);
     if (!best) {
-      setHero({ label: 'Hang on', big: 'Wait', word: true, cls: 'idle', msg: `The next ${S.bus}s come too soon to walk there. New times will show shortly.` });
+      setHero({ label: 'One moment', big: 'Soon', word: true, cls: 'idle', msg: `The next ${S.bus}s come too soon to walk there. New times will show shortly.` });
     } else {
       const m = minsUntil(best.leave, now);
       const late = judge && !best.onTime;
@@ -419,7 +495,7 @@ async function renderMorning(maxAge = 0) {
         label: m <= 0 ? 'Leave home' : 'Leave home in',
         big: m <= 0 ? 'Now' : `${m}<small>min</small>`, word: m <= 0,
         cls: late ? 'late' : m <= 3 ? 'soon' : '',
-        badge: !judge ? '' : late ? 'Running late' : 'Latest on-time bus',
+        badge: !judge ? '' : late ? 'A little late today' : 'Plenty of time · latest bus',
         journey: `<div class="step"><div class="t num">${hhmm(best.leave)}</div><div class="l">Leave home</div></div>
           <div class="step"><div class="t num">${hhmm(best.bus)}</div><div class="l">Bus ${S.bus}</div></div>
           <div class="step"><div class="t num">${hhmm(best.reach)}</div><div class="l">At school</div></div>`
@@ -490,9 +566,20 @@ function checkAlert(m) {
 async function renderSchool() {
   $('s-sub').textContent = stopLabel(S.schoolStop);
   const now = new Date();
+  $('s-date').textContent = now.toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' });
+  const sHero = (label, big, msg, badge, word) => {
+    $('s-hero-label').textContent = label; $('s-hero-big').innerHTML = big; $('s-hero-big').classList.toggle('word', !!word);
+    $('s-hero-msg').textContent = msg; $('s-badge').textContent = badge || ''; $('s-badge').classList.toggle('hidden', !badge);
+  };
   let services;
   try { services = await getArrivals(S.schoolStop); }
-  catch (e) { $('s-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; $('s-updated').innerHTML = ''; return; }
+  catch (e) { $('s-list').innerHTML = `<p class="err">${e.message}. Check your internet.</p>`; $('s-updated').innerHTML = ''; sHero('No connection', '–', '', ''); return; }
+  const home = services.find(s => s.no === S.bus);
+  if (home) {
+    const [n, ...rest] = home.times.map(t => minsUntil(t, now)), out = n - (+S.walkEnd);
+    sHero(`Bus ${S.bus} home in`, n <= 0 ? 'Now' : `${n}<small>min</small>`, rest.length ? 'then ' + rest.map(etaText).join(', ') : '',
+      n <= 0 ? 'Arriving now' : out <= 0 ? 'Time to go' : `Head out in ${out} min`, n <= 0);
+  } else sHero(`Bus ${S.bus}`, '–', 'No live times right now', '');
   if (!services.length) { $('s-list').innerHTML = '<p class="note">No buses right now.</p>'; $('s-updated').innerHTML = footHtml(now); return; }
   services.sort((a, b) => (b.no === S.bus) - (a.no === S.bus) || a.times[0] - b.times[0]);
   $('s-list').innerHTML = services.map(s => {
