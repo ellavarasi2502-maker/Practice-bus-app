@@ -233,16 +233,20 @@
 // ---------- data sources ----------
 // Live arrivals: arrivelah (free, no key, proxies LTA DataMall). Stop names: busrouter.sg data.
 const ARRIVAL_URL = code => `https://arrivelah2.busrouter.sg/?id=${code}`;
+const FIRSTLAST_URL = 'https://data.busrouter.sg/v1/firstlast.min.json';
 const STOPS_URL = 'https://data.busrouter.sg/v1/stops.min.json';
 const DEMO = new URLSearchParams(location.search).has('demo');
 
 // ---------- settings ----------
-const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 15, walkEnd: 3, buffer: 1, gap: 13 };
+const DEFAULTS = { homeStop: '27351', schoolStop: '27539', bus: '99', arriveBy: '06:30', walk: 10, ride: 8, walkEnd: 3, buffer: 1, gap: 13 };
 function loadSettings() {
   try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('mybus') || '{}') }; } catch { return { ...DEFAULTS }; }
 }
 function saveSettings(s) { try { localStorage.setItem('mybus', JSON.stringify(s)); } catch {} }
 let S = loadSettings();
+// v2: the timetable shows the ride to Juying is about 7 min, so replace the old 15-min guess
+if (!S.v && +S.ride === 15) S.ride = DEFAULTS.ride;
+S.v = 2;
 if (!S.homeStop) S.homeStop = DEFAULTS.homeStop;
 if (!S.schoolStop) S.schoolStop = DEFAULTS.schoolStop;
 
@@ -287,6 +291,28 @@ function stopLabel(code) {
   return s ? `${s[2]} · ${s[3]} · ${code}` : `Stop ${code}`;
 }
 
+// ---------- first bus of the day (timetable) ----------
+// Source lines look like "99 0533 0037 0524 = 0534 0040": weekday first/last, Sat first/last, Sun first/last ("=" = same as weekday)
+let FIRST = null; // { stopCode: [lines] } for my stops only
+try { FIRST = JSON.parse(localStorage.getItem('mybus-first') || 'null'); } catch {}
+async function loadFirst() {
+  if (FIRST && FIRST[S.homeStop] && FIRST[S.schoolStop]) return;
+  try {
+    const all = await (await fetch(FIRSTLAST_URL)).json();
+    FIRST = { [S.homeStop]: all[S.homeStop] || [], [S.schoolStop]: all[S.schoolStop] || [] };
+    try { localStorage.setItem('mybus-first', JSON.stringify(FIRST)); } catch {}
+  } catch {}
+}
+// First bus at a stop on the given date, as "HH:MM", or '' if unknown
+function firstBus(code, bus, date) {
+  const line = FIRST && (FIRST[code] || []).find(l => l.split(' ')[0] === bus);
+  if (!line) return '';
+  const f = line.split(' '), day = date.getDay();
+  let t = f[day === 6 ? 3 : day === 0 ? 5 : 1];
+  if (t === '=') t = f[1];
+  return /^\d{4}$/.test(t) ? t.slice(0, 2) + ':' + t.slice(2) : '';
+}
+
 // ---------- live arrivals ----------
 // Returns [{ no, times: [Date, Date, Date] }]
 const cache = {}; // code -> { at, data }
@@ -325,6 +351,7 @@ function renderPlan() {
   const lead = +S.walk + +S.buffer;
   const safeLeave = addMin(latestBus, -(+S.gap + lead));
   const lastLeave = addMin(latestBus, -lead);
+  const first = firstBus(S.homeStop, S.bus, deadline);
   $('m-plan').innerHTML = `<div class="tl">
     <div class="tl-item"><div class="dot g"></div><div class="tl-time num">${hhmm(safeLeave)}</div>
       <div class="tl-text">Leave home<span>Safe even if you just miss a bus</span></div></div>
@@ -335,6 +362,7 @@ function renderPlan() {
     <div class="tl-item"><div class="dot"></div><div class="tl-time num">${hhmm(deadline)}</div>
       <div class="tl-text">At school</div></div>
   </div>
+  ${first ? `<p class="note">First bus ${S.bus} of the day passes your stop at <b>${first}</b>${first > hhmm(latestBus) ? ' — too late to reach school on time' : ''}.</p>` : ''}
   <p class="note">${S.walk} min walk · up to ${S.gap} min wait · ${S.ride} min ride · ${S.walkEnd} min walk</p>`;
 }
 
@@ -367,7 +395,7 @@ async function renderMorning(maxAge = 0) {
   const mine = services.find(s => s.no === S.bus);
   if (!mine) {
     setHero({ label: `No bus ${S.bus} right now`, big: '–', cls: 'idle',
-      msg: `No live times at the moment. Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.` });
+      msg: `No live times yet${firstBus(S.homeStop, S.bus, now) ? ` (first bus is at ${firstBus(S.homeStop, S.bus, now)})` : ''}. Use the plan below: leave by <b>${hhmm(addMin(latestBus, -(+S.gap + lead)))}</b>.` });
     $('m-list').innerHTML = '<p class="note">Nothing coming yet.</p>';
   } else {
     const options = mine.times.map(t => {
@@ -485,7 +513,7 @@ function fillSettings() {
 }));
 $('save').onclick = () => {
   FIELDS.forEach(k => S[k] = $(k).value.trim() || DEFAULTS[k]);
-  saveSettings(S); fillSettings();
+  saveSettings(S); fillSettings(); loadFirst();
   $('saved').textContent = 'Saved ✓'; setTimeout(() => $('saved').textContent = '', 2000);
 };
 function distM(lat1, lng1, lat2, lng2) {
@@ -552,6 +580,7 @@ drawAlert(); keepAwake();
 
 // Start: 11am–8pm opens "After school", otherwise "Morning"
 loadStops().then(() => refresh());
+loadFirst().then(() => { if (tab === 'morning') renderPlan(); });
 const h0 = new Date().getHours();
 show(h0 >= 11 && h0 < 20 ? 'school' : 'morning');
 </script>
